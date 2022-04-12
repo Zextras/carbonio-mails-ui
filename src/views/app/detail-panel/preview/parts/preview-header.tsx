@@ -26,7 +26,7 @@ import {
 import { capitalize, find, isEmpty } from 'lodash';
 import { useTranslation } from 'react-i18next';
 import { useUserAccounts } from '@zextras/carbonio-shell-ui';
-import { useParams } from 'react-router-dom';
+import { useParams, useRouteMatch } from 'react-router-dom';
 import OnBehalfOfDisplayer from './on-behalf-of-displayer';
 import MailMsgPreviewActions from '../../../../../ui-actions/mail-message-preview-actions';
 import { useMessageActions } from '../../../../../hooks/use-message-actions';
@@ -48,6 +48,7 @@ type PreviewHeaderProps = {
 		message: MailMessage;
 		onClick: (e: any) => void;
 		open: boolean;
+		isSearchView: boolean;
 	};
 };
 
@@ -56,14 +57,16 @@ type ThemeType = { sizes: { icon: { large: string } } };
 const fallbackContact = { address: '', displayName: '', fullName: '' };
 
 const PreviewHeader: FC<PreviewHeaderProps> = ({ compProps }): ReactElement => {
-	const { message, onClick, open } = compProps;
+	const { message, onClick, open, isSearchView = false } = compProps;
 
 	const textRef = useRef<HTMLInputElement>();
 	const [t] = useTranslation();
 	const accounts = useUserAccounts();
 
 	const [_minWidth, _setMinWidth] = useState('');
-	const actions = useMessageActions(message);
+	const path = useRouteMatch();
+	console.log('xxx isSearchView:', path);
+	const actions = useMessageActions({ message, isSearchView });
 	const mainContact = find(message.participants, ['type', 'f']) || fallbackContact;
 	const _onClick = useCallback((e) => !e.isDefaultPrevented() && onClick(e), [onClick]);
 	const attachments = retrieveAttachmentsType(message, 'attachment');

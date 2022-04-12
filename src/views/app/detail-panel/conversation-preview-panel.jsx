@@ -19,7 +19,7 @@ import { getConv, searchConv } from '../../../store/actions';
 import MailPreview from './preview/mail-preview';
 import { selectMessages } from '../../../store/messages-slice';
 
-const MessagesComponent = ({ conversation }) => {
+const MessagesComponent = ({ conversation, isSearchView }) => {
 	const { conversationId, folderId } = useParams();
 	const settings = useUserSettings();
 	const messages = useSelector(selectMessages);
@@ -55,6 +55,7 @@ const MessagesComponent = ({ conversation }) => {
 						expanded={expand(message, index)}
 						isAlone={conversation.messages.length === 1}
 						isMessageView={false}
+						isSearchView={isSearchView}
 					/>
 				</Padding>
 			) : (
@@ -65,7 +66,7 @@ const MessagesComponent = ({ conversation }) => {
 	return null;
 };
 
-export default function ConversationPreviewPanel() {
+export default function ConversationPreviewPanel({ isSearchView }) {
 	const { conversationId, folderId } = useParams();
 	const dispatch = useDispatch();
 
@@ -104,7 +105,7 @@ export default function ConversationPreviewPanel() {
 						mainAlignment="flex-start"
 					>
 						<Container height="fit" mainAlignment="flex-start" background="gray5">
-							<MessagesComponent conversation={conversation} />
+							<MessagesComponent conversation={conversation} isSearchView={isSearchView} />
 						</Container>
 					</Container>
 				</>

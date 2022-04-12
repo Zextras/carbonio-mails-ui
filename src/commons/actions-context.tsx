@@ -5,6 +5,7 @@
  */
 import React, { createContext, FC, useCallback, useContext, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+
 import { useDispatch } from 'react-redux';
 import {
 	useIntegratedComponent,
@@ -52,6 +53,7 @@ export const ActionsContextProvider: FC<ACPProps> = ({ children, folderId }) => 
 	const settings = useUserSettings();
 	const account = useUserAccount();
 	const timezone = useMemo(() => settings?.prefs.zimbraPrefTimeZoneId, [settings]);
+
 	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 	// @ts-ignore
 	const [ContactInput, integrationAvailable] = useIntegratedComponent('contact-input');

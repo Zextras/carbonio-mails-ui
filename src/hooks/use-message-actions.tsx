@@ -31,7 +31,13 @@ import {
 	deleteMessagePermanently
 } from '../ui-actions/message-actions';
 
-export const useMessageActions = (message: MailMessage): Array<any> => {
+export const useMessageActions = ({
+	message,
+	isSearchView = false
+}: {
+	message: MailMessage;
+	isSearchView: boolean;
+}): Array<any> => {
 	const [t] = useTranslation();
 	const { folderId }: { folderId: string } = useParams();
 	const createSnackbar = useContext(SnackbarManagerContext);
@@ -50,8 +56,8 @@ export const useMessageActions = (message: MailMessage): Array<any> => {
 	const arr = [];
 
 	if (message.parent === FOLDERS.DRAFTS) {
-		arr.push(sendDraft({ id: message.id, message, t, dispatch }));
-		arr.push(editDraft({ id: message.id, folderId, t }));
+		arr.push(sendDraft({ id: message.id, message, t, dispatch, isSearchView }));
+		arr.push(editDraft({ id: message.id, folderId, t, isSearchView }));
 		arr.push(
 			moveMsgToTrash({
 				ids: [message.id],
@@ -60,10 +66,11 @@ export const useMessageActions = (message: MailMessage): Array<any> => {
 				createSnackbar,
 				deselectAll,
 				folderId,
-				conversationId: message.conversation
+				conversationId: message.conversation,
+				isSearchView
 			})
 		);
-		arr.push(setMsgFlag({ ids: [message.id], value: message.flagged, t, dispatch }));
+		arr.push(setMsgFlag({ ids: [message.id], value: message.flagged, t, dispatch, isSearchView }));
 	}
 	if (
 		message.parent === FOLDERS.INBOX ||
@@ -71,9 +78,9 @@ export const useMessageActions = (message: MailMessage): Array<any> => {
 		!includes(systemFolders, message.parent)
 	) {
 		// INBOX, SENT OR CREATED_FOLDER
-		arr.push(replyMsg({ id: message.id, folderId, t }));
-		arr.push(replyAllMsg({ id: message.id, folderId, t }));
-		arr.push(forwardMsg({ id: message.id, folderId, t }));
+		arr.push(replyMsg({ id: message.id, folderId, t, isSearchView }));
+		arr.push(replyAllMsg({ id: message.id, folderId, t, isSearchView }));
+		arr.push(forwardMsg({ id: message.id, folderId, t, isSearchView }));
 		arr.push(
 			moveMsgToTrash({
 				ids: [message.id],
@@ -82,7 +89,8 @@ export const useMessageActions = (message: MailMessage): Array<any> => {
 				createSnackbar,
 				deselectAll,
 				folderId,
-				conversationId: message.conversation
+				conversationId: message.conversation,
+				isSearchView
 			})
 		);
 		arr.push(
@@ -93,7 +101,8 @@ export const useMessageActions = (message: MailMessage): Array<any> => {
 				dispatch,
 				folderId,
 				shouldReplaceHistory: true,
-				deselectAll
+				deselectAll,
+				isSearchView
 			})
 		);
 		arr.push(
@@ -103,17 +112,26 @@ export const useMessageActions = (message: MailMessage): Array<any> => {
 				dispatch,
 				isRestore: false,
 				createModal,
-				deselectAll
+				deselectAll,
+				isSearchView
 			})
 		);
-		arr.push(printMsg({ t, message, account }));
-		arr.push(setMsgFlag({ ids: [message.id], value: message.flagged, t, dispatch }));
-		arr.push(redirectMsg({ id: message.id, t, createModal }));
-		arr.push(editAsNewMsg({ id: message.id, folderId, t }));
+		arr.push(printMsg({ t, message, account, isSearchView }));
+		arr.push(setMsgFlag({ ids: [message.id], value: message.flagged, t, dispatch, isSearchView }));
+		arr.push(redirectMsg({ id: message.id, t, createModal, isSearchView }));
+		arr.push(editAsNewMsg({ id: message.id, folderId, t, isSearchView }));
 		arr.push(
-			setMsgAsSpam({ ids: [message.id], value: false, t, dispatch, createSnackbar, folderId })
+			setMsgAsSpam({
+				ids: [message.id],
+				value: false,
+				t,
+				dispatch,
+				createSnackbar,
+				folderId,
+				isSearchView
+			})
 		);
-		arr.push(showOriginalMsg({ id: message.id, t }));
+		arr.push(showOriginalMsg({ id: message.id, t, isSearchView }));
 	}
 
 	if (message.parent === FOLDERS.TRASH) {
@@ -124,20 +142,38 @@ export const useMessageActions = (message: MailMessage): Array<any> => {
 				dispatch,
 				isRestore: true,
 				createModal,
-				deselectAll
+				deselectAll,
+				isSearchView
 			})
 		);
 		arr.push(
-			deleteMessagePermanently({ ids: [message.id], t, dispatch, createModal, deselectAll })
+			deleteMessagePermanently({
+				ids: [message.id],
+				t,
+				dispatch,
+				createModal,
+				deselectAll,
+				isSearchView
+			})
 		);
 	}
 	if (message.parent === FOLDERS.SPAM) {
-		arr.push(deleteMsg({ ids: [message.id], t, dispatch, createSnackbar, createModal }));
 		arr.push(
-			setMsgAsSpam({ ids: [message.id], value: true, t, dispatch, createSnackbar, folderId })
+			deleteMsg({ ids: [message.id], t, dispatch, createSnackbar, createModal, isSearchView })
 		);
-		arr.push(printMsg({ t, message, account }));
-		arr.push(showOriginalMsg({ id: message.id, t }));
+		arr.push(
+			setMsgAsSpam({
+				ids: [message.id],
+				value: true,
+				t,
+				dispatch,
+				createSnackbar,
+				folderId,
+				isSearchView
+			})
+		);
+		arr.push(printMsg({ t, message, account, isSearchView }));
+		arr.push(showOriginalMsg({ id: message.id, t, isSearchView }));
 	}
 	return arr;
 };

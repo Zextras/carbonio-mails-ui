@@ -33,13 +33,16 @@ import SharedInviteReply from '../../../../integrations/shared-invite-reply';
 
 import PreviewHeader from './parts/preview-header';
 
-const MailPreviewBlock = ({ message, open, onClick }) => {
+const MailPreviewBlock = ({ message, open, onClick, isSearchView }) => {
 	const [t] = useTranslation();
 	const { folderId } = useParams();
 
 	const createSnackbar = useContext(SnackbarManagerContext);
 	const dispatch = useDispatch();
-	const compProps = useMemo(() => ({ message, onClick, open }), [message, onClick, open]);
+	const compProps = useMemo(
+		() => ({ message, onClick, open, isSearchView }),
+		[message, onClick, open, isSearchView]
+	);
 	const markAsNotSpam = useCallback(
 		() =>
 			setMsgAsSpam({
@@ -87,7 +90,7 @@ const MailPreviewBlock = ({ message, open, onClick }) => {
 	);
 };
 
-export default function MailPreview({ message, expanded, isAlone, isMessageView }) {
+export default function MailPreview({ message, expanded, isAlone, isMessageView, isSearchView }) {
 	const dispatch = useDispatch();
 	const mailContainerRef = useRef(undefined);
 	const accounts = useUserAccounts();
@@ -211,6 +214,7 @@ export default function MailPreview({ message, expanded, isAlone, isMessageView 
 				message={message}
 				timezone={timezone}
 				open={isMailPreviewOpen}
+				isSearchView={isSearchView}
 			/>
 
 			<Container

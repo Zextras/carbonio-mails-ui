@@ -177,7 +177,8 @@ export function moveMsgToTrash({
 	createSnackbar,
 	deselectAll,
 	folderId,
-	conversationId
+	conversationId,
+	isSearchView
 }) {
 	const restoreMessage = () => {
 		dispatch(
@@ -254,7 +255,7 @@ export function moveMsgToTrash({
 	};
 }
 
-export function deleteMsg({ ids, t, dispatch, createSnackbar, createModal }) {
+export function deleteMsg({ ids, t, dispatch, createSnackbar, createModal, isSearchView }) {
 	return {
 		id: 'message-delete',
 		icon: 'Trash2Outline',
@@ -319,62 +320,72 @@ export function deleteMsg({ ids, t, dispatch, createSnackbar, createModal }) {
 	};
 }
 
-export function replyMsg({ id, folderId, t }) {
+export function replyMsg({ id, folderId, t, isSearchView }) {
 	return {
 		id: 'message-reply',
 		icon: 'UndoOutline',
 		label: t('action.reply', 'Reply'),
 		click: (ev) => {
 			if (ev) ev.preventDefault();
-			replaceHistory(`/folder/${folderId}/edit/${id}?action=${ActionsType.REPLY}`);
+			isSearchView
+				? replaceHistory(`/mails/folder/${folderId}/edit/${id}?action=${ActionsType.REPLY}`)
+				: replaceHistory(`/folder/${folderId}/edit/${id}?action=${ActionsType.REPLY}`);
 		}
 	};
 }
 
-export function replyAllMsg({ id, folderId, t }) {
+export function replyAllMsg({ id, folderId, t, isSearchView }) {
 	return {
 		id: 'message-reply_all',
 		icon: 'ReplyAll',
 		label: t('action.reply_all', 'Reply all'),
 		click: (ev) => {
 			if (ev) ev.preventDefault();
-			replaceHistory(`/folder/${folderId}/edit/${id}?action=${ActionsType.REPLY_ALL}`);
+			isSearchView
+				? replaceHistory(`mails/folder/${folderId}/edit/${id}?action=${ActionsType.REPLY_ALL}`)
+				: replaceHistory(`/folder/${folderId}/edit/${id}?action=${ActionsType.REPLY_ALL}`);
 		}
 	};
 }
 
-export function forwardMsg({ id, folderId, t }) {
+export function forwardMsg({ id, folderId, t, isSearchView }) {
 	return {
 		id: 'message-forward',
 		icon: 'Forward',
 		label: t('action.forward', 'Forward'),
 		click: (ev) => {
 			if (ev) ev.preventDefault();
-			replaceHistory(`/folder/${folderId}/edit/${id}?action=${ActionsType.FORWARD}`);
+			isSearchView
+				? replaceHistory(`mails/folder/${folderId}/edit/${id}?action=${ActionsType.FORWARD}`)
+				: replaceHistory(`/folder/${folderId}/edit/${id}?action=${ActionsType.FORWARD}`);
 		}
 	};
 }
 
-export function editAsNewMsg({ id, folderId, t }) {
+export function editAsNewMsg({ id, folderId, t, isSearchView }) {
 	return {
 		id: 'message-edit_as_new',
 		icon: 'Edit2Outline',
 		label: t('action.edit_as_new', 'Edit as new'),
 		click: (ev) => {
 			if (ev) ev.preventDefault();
-			replaceHistory(`/folder/${folderId}/edit/${id}?action=${ActionsType.EDIT_AS_NEW}`);
+			isSearchView
+				? replaceHistory(`/folder/${folderId}/edit/${id}?action=${ActionsType.EDIT_AS_NEW}`)
+				: replaceHistory(`/folder/${folderId}/edit/${id}?action=${ActionsType.EDIT_AS_NEW}`);
 		}
 	};
 }
 
-export function editDraft({ id, folderId, t }) {
+export function editDraft({ id, folderId, t, isSearchView }) {
 	return {
 		id: 'message-edit_as_draft',
 		icon: 'Edit2Outline',
 		label: t('label.edit', 'Edit'),
 		click: (ev) => {
 			if (ev) ev.preventDefault();
-			replaceHistory(`/folder/${folderId}/edit/${id}?action=${ActionsType.EDIT_AS_DRAFT}`);
+			isSearchView
+				? replaceHistory(`mails/folder/${folderId}/edit/${id}?action=${ActionsType.EDIT_AS_DRAFT}`)
+				: replaceHistory(`/folder/${folderId}/edit/${id}?action=${ActionsType.EDIT_AS_DRAFT}`);
 		}
 	};
 }

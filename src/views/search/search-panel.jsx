@@ -39,7 +39,7 @@ const SearchPanel = ({ searchResults, query }) => {
 				<MailEditPanel />
 			</Route>
 			<Route path={`${path}/folder/:folderId/conversation/:conversationId`}>
-				<ConversationPreviewPanel />
+				<ConversationPreviewPanel isSearchView />
 			</Route>
 			<Route
 				path={path}
