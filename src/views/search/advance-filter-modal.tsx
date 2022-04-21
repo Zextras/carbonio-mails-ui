@@ -6,7 +6,7 @@
 import React, { FC, ReactElement, useState, useCallback, useMemo, useEffect } from 'react';
 import { CustomModal, Container, Icon, Row, Text, Padding } from '@zextras/carbonio-design-system';
 import { TFunction } from 'i18next';
-import { concat, filter, includes, map } from 'lodash';
+import { concat, filter, includes, isEqual, map } from 'lodash';
 import { getTags, ZIMBRA_STANDARD_COLORS } from '@zextras/carbonio-shell-ui';
 import ModalFooter from '../sidebar/commons/modal-footer';
 import { ModalHeader } from '../sidebar/commons/modal-header';
@@ -68,6 +68,10 @@ const AdvancedFilterModal: FC<AdvancedFilterModalProps> = ({
 	const [sizeLarger, setSizeLarger] = useState<keywordState>([]);
 	const [sizeSmallerErrorLabel, setSizeSmallerErrorLabel] = useState('');
 	const [sizeLargerErrorLabel, setSizeLargerErrorLabel] = useState('');
+	const [queryFirst, setQueryFirst] = useState(query);
+
+	console.log('vv queryFirst:', queryFirst);
+	console.log('vv query:', query);
 
 	const queryArray = useMemo(() => ['has:attachment', 'is:flagged', 'is:unread'], []);
 	const tagOptions = useMemo(
@@ -181,24 +185,7 @@ const AdvancedFilterModal: FC<AdvancedFilterModalProps> = ({
 		() => filter(otherKeywords, (q) => q.isGeneric === true || q.isQueryFilter === true).length,
 		[otherKeywords]
 	);
-	const disabled = useDisabled({
-		sizeSmaller,
-		sizeLarger,
-		totalKeywords,
-		subject,
-		unreadFilter,
-		attachmentFilter,
-		flaggedFilter,
-		receivedFromAddress,
-		sentFromAddress,
-		emailStatus,
-		folder,
-		sentBefore,
-		sentOn,
-		sentAfter,
-		tag,
-		attachmentType
-	});
+
 	const secondaryDisabled = useSecondaryDisabled({
 		attachmentFilter,
 		attachmentType,
@@ -235,52 +222,78 @@ const AdvancedFilterModal: FC<AdvancedFilterModalProps> = ({
 		setTag([]);
 	}, [updateQuery]);
 
-	const onConfirm = useCallback(() => {
-		const tmp = concat(
-			otherKeywords,
-			unreadFilter,
-			flaggedFilter,
+	const queryToBe = useMemo(
+		() =>
+			concat(
+				otherKeywords,
+				unreadFilter,
+				flaggedFilter,
+				attachmentFilter,
+				folder,
+				sentBefore,
+				sentAfter,
+				sentOn,
+				tag,
+				map(subject, (q) => ({
+					...q,
+					hasAvatar: true,
+					icon: 'EmailOutline',
+					iconBackground: 'gray1'
+				})),
+				attachmentType,
+				emailStatus,
+				sizeLarger,
+				sizeSmaller,
+				receivedFromAddress,
+				sentFromAddress
+			),
+		[
 			attachmentFilter,
-			folder,
-			sentBefore,
-			sentAfter,
-			sentOn,
-			tag,
-			map(subject, (q) => ({
-				...q,
-				hasAvatar: true,
-				icon: 'EmailOutline',
-				iconBackground: 'gray1'
-			})),
 			attachmentType,
 			emailStatus,
+			flaggedFilter,
+			folder,
+			otherKeywords,
+			receivedFromAddress,
+			sentAfter,
+			sentBefore,
+			sentFromAddress,
+			sentOn,
 			sizeLarger,
 			sizeSmaller,
-			receivedFromAddress,
-			sentFromAddress
-		);
-		updateQuery(tmp);
+			subject,
+			tag,
+			unreadFilter
+		]
+	);
+	console.log('vv queryToBe:', queryToBe);
+	const onConfirm = useCallback(() => {
+		// const tmp = concat(
+		// 	otherKeywords,
+		// 	unreadFilter,
+		// 	flaggedFilter,
+		// 	attachmentFilter,
+		// 	folder,
+		// 	sentBefore,
+		// 	sentAfter,
+		// 	sentOn,
+		// 	tag,
+		// 	map(subject, (q) => ({
+		// 		...q,
+		// 		hasAvatar: true,
+		// 		icon: 'EmailOutline',
+		// 		iconBackground: 'gray1'
+		// 	})),
+		// 	attachmentType,
+		// 	emailStatus,
+		// 	sizeLarger,
+		// 	sizeSmaller,
+		// 	receivedFromAddress,
+		// 	sentFromAddress
+		// );
+		updateQuery(queryToBe);
 		onClose();
-	}, [
-		receivedFromAddress,
-		sentFromAddress,
-		updateQuery,
-		attachmentType,
-		emailStatus,
-		sizeSmaller,
-		sizeLarger,
-		folder,
-		tag,
-		sentBefore,
-		subject,
-		onClose,
-		otherKeywords,
-		unreadFilter,
-		flaggedFilter,
-		attachmentFilter,
-		sentAfter,
-		sentOn
-	]);
+	}, [updateQuery, queryToBe, onClose]);
 
 	const subjectKeywordRowProps = useMemo(
 		() => ({
@@ -360,7 +373,25 @@ const AdvancedFilterModal: FC<AdvancedFilterModalProps> = ({
 		}),
 		[t, query, setUnreadFilter, setFlaggedFilter, setAttachmentFilter]
 	);
-
+	const disabled =
+		useDisabled({
+			sizeSmaller,
+			sizeLarger,
+			totalKeywords,
+			subject,
+			unreadFilter,
+			attachmentFilter,
+			flaggedFilter,
+			receivedFromAddress,
+			sentFromAddress,
+			emailStatus,
+			folder,
+			sentBefore,
+			sentOn,
+			sentAfter,
+			tag,
+			attachmentType
+		}) || isEqual(queryToBe, query);
 	return (
 		<CustomModal open={open} onClose={onClose} maxHeight="90vh" size="medium">
 			<Container padding={{ bottom: 'medium' }}>
