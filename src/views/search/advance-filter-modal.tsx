@@ -6,7 +6,7 @@
 import React, { FC, ReactElement, useState, useCallback, useMemo, useEffect } from 'react';
 import { CustomModal, Container, Icon, Row, Text, Padding } from '@zextras/carbonio-design-system';
 import { TFunction } from 'i18next';
-import { concat, filter, includes, isEqual, map } from 'lodash';
+import { concat, filter, includes, isEqualWith, map } from 'lodash';
 import { getTags, ZIMBRA_STANDARD_COLORS } from '@zextras/carbonio-shell-ui';
 import ModalFooter from '../sidebar/commons/modal-footer';
 import { ModalHeader } from '../sidebar/commons/modal-header';
@@ -17,7 +17,7 @@ import SizeSmallerSizeLargerRow from './parts/size-smaller-size-larger-row';
 import TagFolderRow from './parts/tag-folder-row';
 import SendRecievedDateRow from './parts/send-date-row';
 import RecievedSentAddressRow from './parts/recieved-sent-address-row';
-import { useDisabled, useSecondaryDisabled } from './parts/use-disable-hooks';
+import { useSecondaryDisabled } from './parts/use-disable-hooks';
 
 type AdvancedFilterModalProps = {
 	open: boolean;
@@ -68,10 +68,6 @@ const AdvancedFilterModal: FC<AdvancedFilterModalProps> = ({
 	const [sizeLarger, setSizeLarger] = useState<keywordState>([]);
 	const [sizeSmallerErrorLabel, setSizeSmallerErrorLabel] = useState('');
 	const [sizeLargerErrorLabel, setSizeLargerErrorLabel] = useState('');
-	const [queryFirst, setQueryFirst] = useState(query);
-
-	console.log('vv queryFirst:', queryFirst);
-	console.log('vv query:', query);
 
 	const queryArray = useMemo(() => ['has:attachment', 'is:flagged', 'is:unread'], []);
 	const tagOptions = useMemo(
@@ -266,31 +262,8 @@ const AdvancedFilterModal: FC<AdvancedFilterModalProps> = ({
 			unreadFilter
 		]
 	);
-	console.log('vv queryToBe:', queryToBe);
+
 	const onConfirm = useCallback(() => {
-		// const tmp = concat(
-		// 	otherKeywords,
-		// 	unreadFilter,
-		// 	flaggedFilter,
-		// 	attachmentFilter,
-		// 	folder,
-		// 	sentBefore,
-		// 	sentAfter,
-		// 	sentOn,
-		// 	tag,
-		// 	map(subject, (q) => ({
-		// 		...q,
-		// 		hasAvatar: true,
-		// 		icon: 'EmailOutline',
-		// 		iconBackground: 'gray1'
-		// 	})),
-		// 	attachmentType,
-		// 	emailStatus,
-		// 	sizeLarger,
-		// 	sizeSmaller,
-		// 	receivedFromAddress,
-		// 	sentFromAddress
-		// );
 		updateQuery(queryToBe);
 		onClose();
 	}, [updateQuery, queryToBe, onClose]);
@@ -373,25 +346,17 @@ const AdvancedFilterModal: FC<AdvancedFilterModalProps> = ({
 		}),
 		[t, query, setUnreadFilter, setFlaggedFilter, setAttachmentFilter]
 	);
-	const disabled =
-		useDisabled({
-			sizeSmaller,
-			sizeLarger,
-			totalKeywords,
-			subject,
-			unreadFilter,
-			attachmentFilter,
-			flaggedFilter,
-			receivedFromAddress,
-			sentFromAddress,
-			emailStatus,
-			folder,
-			sentBefore,
-			sentOn,
-			sentAfter,
-			tag,
-			attachmentType
-		}) || isEqual(queryToBe, query);
+
+	const disabled = useMemo(
+		() =>
+			isEqualWith(queryToBe, query, (qtb, q) => {
+				if (qtb.length === q.length && q.length === 0) return true;
+				if (qtb.length !== q.length) return false;
+				return qtb[0].value === q[0].value;
+			}),
+		[query, queryToBe]
+	);
+
 	return (
 		<CustomModal open={open} onClose={onClose} maxHeight="90vh" size="medium">
 			<Container padding={{ bottom: 'medium' }}>
