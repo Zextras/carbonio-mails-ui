@@ -44,35 +44,17 @@ function PreviewPanelHeader({ item, folderId }) {
 						{item.subject || `(${t('label.no_subject', 'No subject')})`}
 					</Text>
 				</Row>
-				<Tooltip label={t('board.show', 'Show board')} placement="bottom">
+				<Tooltip label={t('action.close', 'Close')} placement="bottom-end">
 					<IconButton
-						data-testid="PreviewPanelMinimizeIcon"
-						icon="DiagonalArrowLeftDownOutline"
-						onClick={() => null}
+						data-testid="PreviewPanelCloseIcon"
+						icon="CloseOutline"
+						onClick={replaceHistoryCallback}
 						customSize={{
 							iconSize: 'large',
 							paddingSize: 'small'
 						}}
 					/>
 				</Tooltip>
-				<IconButton
-					data-testid="PreviewPanelExpandIcon"
-					icon="ExpandOutline"
-					onClick={() => null}
-					customSize={{
-						iconSize: 'large',
-						paddingSize: 'small'
-					}}
-				/>
-				<IconButton
-					data-testid="PreviewPanelCloseIcon"
-					icon="CloseOutline"
-					onClick={replaceHistoryCallback}
-					customSize={{
-						iconSize: 'large',
-						paddingSize: 'small'
-					}}
-				/>
 			</Container>
 			<Divider />
 		</>

@@ -1,5 +1,6 @@
 {
     "action": {
+        "close": "Close",
         "edit_as_new": "Edit as new",
         "edit_share": "Edit Share",
         "flag": "Add flag",
