@@ -3,11 +3,23 @@
  *
  * SPDX-License-Identifier: AGPL-3.0-only
  */
-import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { forEach, reduce } from 'lodash';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { filter, forEach, isArray, reduce } from 'lodash';
 import { useTranslation } from 'react-i18next';
-import { Container, Text, Button, Row } from '@zextras/carbonio-design-system';
+import {
+	Container,
+	Text,
+	Button,
+	Row,
+	Icon,
+	Padding,
+	IconButton,
+	MultiButton
+} from '@zextras/carbonio-design-system';
+import styled from 'styled-components';
+import { editSettings, useUserSettings } from '@zextras/carbonio-shell-ui';
 import { getOriginalContent, getQuotedTextOnly } from './get-quoted-text-util';
+import { isAvaiableInTrusteeList } from './utils';
 
 export const _CI_REGEX = /^<(.*)>$/;
 export const _CI_SRC_REGEX = /^cid:(.*)$/;
@@ -21,6 +33,17 @@ export const plainTextToHTML = (str) => {
 	}
 	return '';
 };
+
+const BannerContainer = styled(Container)`
+	border-bottom: 1px solid ${(props) => props.theme.palette.warning.regular};
+	padding: 8px 16px;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	height: 58px;
+	border-radius: 2px 2px 0px 0px;
+`;
+
 const replaceLinkToAnchor = (content) => {
 	if (content === '' || content === undefined) {
 		return '';
@@ -79,11 +102,21 @@ const _TextMessageRenderer = ({ body, t }) => {
 	);
 };
 
-const _HtmlMessageRenderer = ({ msgId, body, parts, t }) => {
+const _HtmlMessageRenderer = ({ msgId, body, parts, t, participants }) => {
 	const divRef = useRef();
 	const iframeRef = useRef();
 	const [showQuotedText, setShowQuotedText] = useState(false);
-	// const settings = useUserSettings();
+
+	const settingsPref = useUserSettings().prefs;
+	const from = filter(participants, { type: 'f' })[0].address;
+	const domain = from.split('@')[1];
+	console.log('bbb from::', from);
+	console.log('bbb domain::', domain);
+	// console.log('aaas settings::', settingsPref);
+	console.log('aaas settings::', settingsPref.zimbraPrefMailTrustedSenderList);
+	const [showExternalImageBanner, setShowExternalImageBanner] = useState(false);
+	const [showExternalImage, setShowExternalImage] = useState(true);
+
 	// const darkMode = useMemo(
 	// 	() => find(settings.props, ['name', 'zappDarkreaderMode'])?._content,
 	// 	[settings]
@@ -96,9 +129,26 @@ const _HtmlMessageRenderer = ({ msgId, body, parts, t }) => {
 		() => (showQuotedText ? body.content : orignalText),
 		[showQuotedText, body.content, orignalText]
 	);
+
 	const calculateHeight = () => {
 		iframeRef.current.style.height = '0px';
 		iframeRef.current.style.height = `${iframeRef.current.contentDocument.body.scrollHeight}px`;
+	};
+
+	const saveTrustee = (trustee) => {
+		let trusteeAddress = [];
+		if (settingsPref.zimbraPrefMailTrustedSenderList) {
+			trusteeAddress = isArray(settingsPref.zimbraPrefMailTrustedSenderList)
+				? settingsPref.zimbraPrefMailTrustedSenderList
+				: settingsPref.zimbraPrefMailTrustedSenderList.split(',');
+		}
+		editSettings({
+			prefs: { zimbraPrefMailTrustedSenderList: [...trusteeAddress, trustee] }
+		}).then((res) => {
+			console.log('dddd aaaaas res:::', res);
+			setShowExternalImage(true);
+			setShowExternalImageBanner(false);
+		});
 	};
 
 	useLayoutEffect(() => {
@@ -160,10 +210,14 @@ const _HtmlMessageRenderer = ({ msgId, body, parts, t }) => {
 		);
 
 		const images = iframeRef.current.contentDocument.body.getElementsByTagName('img');
-
+		console.log('aaa images :::', images);
+		let isExternalImage = false;
 		forEach(images, (p) => {
 			if (p.hasAttribute('dfsrc')) {
+				isExternalImage = true;
+				console.log('aaap p :::', p.getAttribute('dfsrc'));
 				p.setAttribute('src', p.getAttribute('dfsrc'));
+				p.setAttribute('style', showExternalImage ? 'display: block' : 'display: none');
 			}
 			if (!_CI_SRC_REGEX.test(p.src)) return;
 			const ci = _CI_SRC_REGEX.exec(p.getAttribute('src'))[1];
@@ -174,14 +228,86 @@ const _HtmlMessageRenderer = ({ msgId, body, parts, t }) => {
 			}
 		});
 
+		if (
+			isExternalImage &&
+			!isAvaiableInTrusteeList(settingsPref.zimbraPrefMailTrustedSenderList, from)
+		) {
+			setShowExternalImage(false);
+			setShowExternalImageBanner(true);
+		}
+
 		const resizeObserver = new ResizeObserver(calculateHeight);
 		resizeObserver.observe(divRef.current);
 
 		return () => resizeObserver.disconnect();
-	}, [body, parts, msgId, contentToDisplay]);
+	}, [
+		body,
+		from,
+		parts,
+		msgId,
+		contentToDisplay,
+		showExternalImage,
+		settingsPref.zimbraPrefMailTrustedSenderList
+	]);
 
 	return (
 		<div ref={divRef} className="force-white-bg">
+			{true && (
+				<BannerContainer
+					orientation="horizontal"
+					mainAlignment="flex-start"
+					crossAlignment="center"
+					padding={{ all: 'large' }}
+					height="58px"
+					background="#FFF7DE"
+					width="100%"
+				>
+					<Padding right="large">
+						<Icon icon="AlertTriangleOutline" color="warning" size="large" />
+					</Padding>
+					<Text overflow="break-word" size="small">
+						{t(
+							'message.external_images_blocked',
+							'External images have been blocked to protect you against potential spam'
+						)}
+					</Text>
+					<MultiButton
+						background="warning"
+						type="outlined"
+						label="VIEW IMAGES"
+						onClick={() => {
+							setShowExternalImage(true);
+							setShowExternalImageBanner(false);
+						}}
+						items={[
+							{
+								id: 'always-allow-address',
+								label: t('label.always_allow_address', {
+									from,
+									defaultValue: 'Always allow from "{{from}}"'
+								}),
+								click: () => saveTrustee(from)
+							},
+							{
+								id: 'always-allow-domain',
+								label: t('label.always_allow_domain', {
+									domain,
+									defaultValue: 'Always allow from "{{domain}}" domain'
+								}),
+								click: () => saveTrustee(domain)
+							}
+						]}
+					/>
+					<IconButton
+						icon="CloseOutline"
+						onClick={() => setShowExternalImageBanner(false)}
+						customSize={{
+							iconSize: 'large',
+							paddingSize: 'small'
+						}}
+					/>
+				</BannerContainer>
+			)}
 			<iframe
 				title={msgId}
 				ref={iframeRef}
@@ -233,6 +359,7 @@ export function findAttachments(parts, acc) {
 const MailMessageRenderer = ({ mailMsg, onLoadChange }) => {
 	const [t] = useTranslation();
 	const parts = findAttachments(mailMsg.parts ?? [], []);
+	console.log('aaaas mailMsg:::', mailMsg);
 	useEffect(() => {
 		if (!mailMsg.read) {
 			onLoadChange();
@@ -243,7 +370,15 @@ const MailMessageRenderer = ({ mailMsg, onLoadChange }) => {
 	}
 
 	if (mailMsg.body?.contentType === 'text/html') {
-		return <_HtmlMessageRenderer msgId={mailMsg.id} body={mailMsg.body} parts={parts} t={t} />;
+		return (
+			<_HtmlMessageRenderer
+				msgId={mailMsg.id}
+				body={mailMsg.body}
+				parts={parts}
+				t={t}
+				participants={mailMsg.participants}
+			/>
+		);
 	}
 	if (mailMsg.body?.contentType === 'text/plain') {
 		return <_TextMessageRenderer body={mailMsg.body} t={t} />;
