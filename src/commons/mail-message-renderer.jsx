@@ -44,6 +44,17 @@ const BannerContainer = styled(Container)`
 	border-radius: 2px 2px 0px 0px;
 `;
 
+const StyledMultiBtn = styled(MultiButton)`
+	border: 1px solid ${(props) => props.theme.palette.warning.regular};
+	& > * {
+		background-color: ${(props) => props.theme.palette.transparent.regular} !important;
+		color: ${(props) => props.theme.palette.warning.regular} !important;
+	}
+	svg {
+		fill: ${(props) => props.theme.palette.warning.regular};
+	}
+`;
+
 const replaceLinkToAnchor = (content) => {
 	if (content === '' || content === undefined) {
 		return '';
@@ -268,8 +279,8 @@ const _HtmlMessageRenderer = ({ msgId, body, parts, t, participants }) => {
 							'External images have been blocked to protect you against potential spam'
 						)}
 					</Text>
-					<MultiButton
-						background="warning"
+					<StyledMultiBtn
+						background="transparent"
 						type="outlined"
 						label="VIEW IMAGES"
 						onClick={() => {
