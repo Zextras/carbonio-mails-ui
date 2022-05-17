@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { filter, forEach, isArray, reduce } from 'lodash';
+import { filter, forEach, isArray, reduce, some } from 'lodash';
 import { useTranslation } from 'react-i18next';
 import {
 	Container,
@@ -110,13 +110,11 @@ const _HtmlMessageRenderer = ({ msgId, body, parts, t, participants }) => {
 	const settingsPref = useUserSettings().prefs;
 	const from = filter(participants, { type: 'f' })[0].address;
 	const domain = from.split('@')[1];
-	console.log('bbb from::', from);
-	console.log('bbb domain::', domain);
-	// console.log('aaas settings::', settingsPref);
-	console.log('aaas settings::', settingsPref.zimbraPrefMailTrustedSenderList);
-	const [showExternalImageBanner, setShowExternalImageBanner] = useState(false);
-	const [showExternalImage, setShowExternalImage] = useState(true);
 
+	console.log('aaas settings::', settingsPref.zimbraPrefMailTrustedSenderList);
+
+	const [showExternalImage, setShowExternalImage] = useState(false);
+	const [displayBanner, setDisplayBanner] = useState(true);
 	// const darkMode = useMemo(
 	// 	() => find(settings.props, ['name', 'zappDarkreaderMode'])?._content,
 	// 	[settings]
@@ -128,6 +126,22 @@ const _HtmlMessageRenderer = ({ msgId, body, parts, t, participants }) => {
 	const contentToDisplay = useMemo(
 		() => (showQuotedText ? body.content : orignalText),
 		[showQuotedText, body.content, orignalText]
+	);
+
+	const haveExternalImages = useMemo(() => {
+		const parser = new DOMParser();
+		const htmlDoc = parser.parseFromString(contentToDisplay, 'text/html');
+		const images = htmlDoc.body.getElementsByTagName('img');
+
+		return some(images, (i) => i.hasAttribute('dfsrc'));
+	}, [contentToDisplay]);
+
+	const showBanner = useMemo(
+		() =>
+			haveExternalImages &&
+			!isAvaiableInTrusteeList(settingsPref.zimbraPrefMailTrustedSenderList, from) &&
+			displayBanner,
+		[from, haveExternalImages, settingsPref.zimbraPrefMailTrustedSenderList, displayBanner]
 	);
 
 	const calculateHeight = () => {
@@ -147,7 +161,6 @@ const _HtmlMessageRenderer = ({ msgId, body, parts, t, participants }) => {
 		}).then((res) => {
 			console.log('dddd aaaaas res:::', res);
 			setShowExternalImage(true);
-			setShowExternalImageBanner(false);
 		});
 	};
 
@@ -210,14 +223,14 @@ const _HtmlMessageRenderer = ({ msgId, body, parts, t, participants }) => {
 		);
 
 		const images = iframeRef.current.contentDocument.body.getElementsByTagName('img');
-		console.log('aaa images :::', images);
-		let isExternalImage = false;
+
 		forEach(images, (p) => {
 			if (p.hasAttribute('dfsrc')) {
-				isExternalImage = true;
-				console.log('aaap p :::', p.getAttribute('dfsrc'));
 				p.setAttribute('src', p.getAttribute('dfsrc'));
-				p.setAttribute('style', showExternalImage ? 'display: block' : 'display: none');
+				p.setAttribute(
+					'style',
+					showExternalImage && showBanner ? 'display: block' : 'display: none'
+				);
 			}
 			if (!_CI_SRC_REGEX.test(p.src)) return;
 			const ci = _CI_SRC_REGEX.exec(p.getAttribute('src'))[1];
@@ -228,31 +241,15 @@ const _HtmlMessageRenderer = ({ msgId, body, parts, t, participants }) => {
 			}
 		});
 
-		if (
-			isExternalImage &&
-			!isAvaiableInTrusteeList(settingsPref.zimbraPrefMailTrustedSenderList, from)
-		) {
-			setShowExternalImage(false);
-			setShowExternalImageBanner(true);
-		}
-
 		const resizeObserver = new ResizeObserver(calculateHeight);
 		resizeObserver.observe(divRef.current);
 
 		return () => resizeObserver.disconnect();
-	}, [
-		body,
-		from,
-		parts,
-		msgId,
-		contentToDisplay,
-		showExternalImage,
-		settingsPref.zimbraPrefMailTrustedSenderList
-	]);
+	}, [contentToDisplay, msgId, parts, showBanner, showExternalImage]);
 
 	return (
 		<div ref={divRef} className="force-white-bg">
-			{true && (
+			{showBanner && !showExternalImage && (
 				<BannerContainer
 					orientation="horizontal"
 					mainAlignment="flex-start"
@@ -277,7 +274,6 @@ const _HtmlMessageRenderer = ({ msgId, body, parts, t, participants }) => {
 						label="VIEW IMAGES"
 						onClick={() => {
 							setShowExternalImage(true);
-							setShowExternalImageBanner(false);
 						}}
 						items={[
 							{
@@ -300,7 +296,7 @@ const _HtmlMessageRenderer = ({ msgId, body, parts, t, participants }) => {
 					/>
 					<IconButton
 						icon="CloseOutline"
-						onClick={() => setShowExternalImageBanner(false)}
+						onClick={() => setDisplayBanner(false)}
 						customSize={{
 							iconSize: 'large',
 							paddingSize: 'small'
