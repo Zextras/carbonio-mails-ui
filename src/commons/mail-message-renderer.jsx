@@ -122,8 +122,6 @@ const _HtmlMessageRenderer = ({ msgId, body, parts, t, participants }) => {
 	const from = filter(participants, { type: 'f' })[0].address;
 	const domain = from.split('@')[1];
 
-	console.log('aaas settings::', settingsPref.zimbraPrefMailTrustedSenderList);
-
 	const [showExternalImage, setShowExternalImage] = useState(false);
 	const [displayBanner, setDisplayBanner] = useState(true);
 	// const darkMode = useMemo(
@@ -154,6 +152,10 @@ const _HtmlMessageRenderer = ({ msgId, body, parts, t, participants }) => {
 			displayBanner,
 		[from, haveExternalImages, settingsPref.zimbraPrefMailTrustedSenderList, displayBanner]
 	);
+	useEffect(() => {
+		if (isAvaiableInTrusteeList(settingsPref.zimbraPrefMailTrustedSenderList, from))
+			setShowExternalImage(true);
+	}, [from, settingsPref.zimbraPrefMailTrustedSenderList]);
 
 	const calculateHeight = () => {
 		iframeRef.current.style.height = '0px';
@@ -170,11 +172,13 @@ const _HtmlMessageRenderer = ({ msgId, body, parts, t, participants }) => {
 		editSettings({
 			prefs: { zimbraPrefMailTrustedSenderList: [...trusteeAddress, trustee] }
 		}).then((res) => {
-			console.log('dddd aaaaas res:::', res);
 			setShowExternalImage(true);
 		});
 	};
-
+	const showImage = useMemo(
+		() => showExternalImage && displayBanner,
+		[displayBanner, showExternalImage]
+	);
 	useLayoutEffect(() => {
 		iframeRef.current.contentDocument.open();
 		iframeRef.current.contentDocument.write(contentToDisplay);
@@ -238,10 +242,7 @@ const _HtmlMessageRenderer = ({ msgId, body, parts, t, participants }) => {
 		forEach(images, (p) => {
 			if (p.hasAttribute('dfsrc')) {
 				p.setAttribute('src', p.getAttribute('dfsrc'));
-				p.setAttribute(
-					'style',
-					showExternalImage && showBanner ? 'display: block' : 'display: none'
-				);
+				p.setAttribute('style', showImage ? 'display: block' : 'display: none');
 			}
 			if (!_CI_SRC_REGEX.test(p.src)) return;
 			const ci = _CI_SRC_REGEX.exec(p.getAttribute('src'))[1];
@@ -256,7 +257,7 @@ const _HtmlMessageRenderer = ({ msgId, body, parts, t, participants }) => {
 		resizeObserver.observe(divRef.current);
 
 		return () => resizeObserver.disconnect();
-	}, [contentToDisplay, msgId, parts, showBanner, showExternalImage]);
+	}, [contentToDisplay, msgId, parts, showImage]);
 
 	return (
 		<div ref={divRef} className="force-white-bg">
@@ -286,6 +287,7 @@ const _HtmlMessageRenderer = ({ msgId, body, parts, t, participants }) => {
 						onClick={() => {
 							setShowExternalImage(true);
 						}}
+						dropdownProps={{ maxWidth: '500px', width: 'fit' }}
 						items={[
 							{
 								id: 'always-allow-address',
@@ -366,7 +368,7 @@ export function findAttachments(parts, acc) {
 const MailMessageRenderer = ({ mailMsg, onLoadChange }) => {
 	const [t] = useTranslation();
 	const parts = findAttachments(mailMsg.parts ?? [], []);
-	console.log('aaaas mailMsg:::', mailMsg);
+
 	useEffect(() => {
 		if (!mailMsg.read) {
 			onLoadChange();
