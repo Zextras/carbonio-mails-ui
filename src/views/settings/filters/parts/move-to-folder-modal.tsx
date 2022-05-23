@@ -7,11 +7,10 @@ import React, { FC, ReactElement, useCallback, useMemo, useState } from 'react';
 import { Container, CustomModal, Input, Text, Icon } from '@zextras/carbonio-design-system';
 import { TFunction } from 'i18next';
 import { filter, isEmpty, reduce, startsWith } from 'lodash';
-import { useSelector } from 'react-redux';
+import { useFolders } from '@zextras/carbonio-shell-ui';
 import ModalFooter from '../../../sidebar/commons/modal-footer';
 import { ModalHeader } from '../../../sidebar/commons/modal-header';
 import FolderItem from '../../../sidebar/commons/folder-item';
-import { selectFolders } from '../../../../store/folders-slice';
 import { Folder as FolderType } from '../../../../types/folder';
 import { getFolderIconColor, getFolderIconName } from '../../../sidebar/utils';
 
@@ -44,7 +43,7 @@ const FolderSelectModal: FC<ComponentProps> = ({ compProps }): ReactElement => {
 		setFolderDestination,
 		setFolder
 	} = compProps;
-	const folders = useSelector(selectFolders);
+	const folders = useFolders();
 	const [input, setInput] = useState('');
 
 	const filterFromInput = useMemo(

@@ -22,62 +22,19 @@ export const DeleteModal: FC<ModalProps> = ({ folder, onClose }) => {
 	const createSnackbar = useContext(SnackbarManagerContext) as Function;
 	const onConfirm = useCallback(() => {
 		let inTrash = false;
-		const restoreFolder = (): void =>
-			dispatch(
-				folderAction({ folder: folder.folder, l: folder.folder?.parent, op: FOLDER_ACTIONS.MOVE })
-			)
-				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-				// @ts-ignore
-				.then((res) => {
-					if (res.type.includes('fulfilled')) {
-						createSnackbar({
-							key: `trash-folder`,
-							replace: true,
-							type: 'success',
-							label: t('messages.snackbar.folder_restored', 'Folder restored'),
-							autoHideTimeout: 3000,
-							hideButton: true
-						});
-					} else {
-						createSnackbar({
-							key: `trash`,
-							replace: true,
-							type: 'error',
-							label: t('label.error_try_again', 'Something went wrong, please try again'),
-							autoHideTimeout: 3000,
-							hideButton: true
-						});
-					}
-				})
-				.catch(report);
-
-		if (startsWith(folder.folder?.absFolderPath, '/Trash')) {
-			inTrash = true;
-		}
-		dispatch(
-			folderAction({
-				folder: folder.folder,
-				l: FOLDERS.TRASH,
-				op: inTrash ? FOLDER_ACTIONS.DELETE : FOLDER_ACTIONS.MOVE
-			})
-		)
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			// @ts-ignore
-			.then((res: { type: string }) => {
-				if (res.type.includes('fulfilled')) {
+		const restoreFolder = (): Promise<void> =>
+			folderAction({ folder: folder.folder, l: folder.folder?.parent, op: FOLDER_ACTIONS.MOVE })
+				.then(() => {
 					createSnackbar({
 						key: `trash-folder`,
 						replace: true,
-						type: 'info',
-						label: inTrash
-							? t('messages.snackbar.folder_deleted', 'Folder permanently deleted.')
-							: t('messages.snackbar.folder_moved_to_trash', 'Folder moved to trash'),
-						autoHideTimeout: 5000,
-						hideButton: false,
-						actionLabel: 'Undo',
-						onActionClick: () => restoreFolder()
+						type: 'success',
+						label: t('messages.snackbar.folder_restored', 'Folder restored'),
+						autoHideTimeout: 3000,
+						hideButton: true
 					});
-				} else {
+				})
+				.catch(() => {
 					createSnackbar({
 						key: `trash`,
 						replace: true,
@@ -86,11 +43,44 @@ export const DeleteModal: FC<ModalProps> = ({ folder, onClose }) => {
 						autoHideTimeout: 3000,
 						hideButton: true
 					});
-				}
+				})
+				.catch(report);
+
+		if (startsWith(folder.folder?.absFolderPath, '/Trash')) {
+			inTrash = true;
+		}
+		folderAction({
+			folder: folder.folder,
+			l: FOLDERS.TRASH,
+			op: inTrash ? FOLDER_ACTIONS.DELETE : FOLDER_ACTIONS.MOVE
+		})
+			.then(() => {
+				createSnackbar({
+					key: `trash-folder`,
+					replace: true,
+					type: 'info',
+					label: inTrash
+						? t('messages.snackbar.folder_deleted', 'Folder permanently deleted.')
+						: t('messages.snackbar.folder_moved_to_trash', 'Folder moved to trash'),
+					autoHideTimeout: 5000,
+					hideButton: false,
+					actionLabel: 'Undo',
+					onActionClick: () => restoreFolder()
+				});
+			})
+			.catch(() => {
+				createSnackbar({
+					key: `trash`,
+					replace: true,
+					type: 'error',
+					label: t('label.error_try_again', 'Something went wrong, please try again'),
+					autoHideTimeout: 3000,
+					hideButton: true
+				});
 			})
 			.catch(report);
 		onClose();
-	}, [folder, dispatch, onClose, createSnackbar, t]);
+	}, [folder, onClose, createSnackbar, t]);
 
 	return folder.folder ? (
 		<Container

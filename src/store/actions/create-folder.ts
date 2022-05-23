@@ -3,20 +3,20 @@
  *
  * SPDX-License-Identifier: AGPL-3.0-only
  */
-import { createAsyncThunk } from '@reduxjs/toolkit';
 import { soapFetch } from '@zextras/carbonio-shell-ui';
 
-export const createFolder = createAsyncThunk(
-	'folder-panel/createFolder',
-	async ({ parentFolder, name }: any) => {
-		const { folder } = (await soapFetch('CreateFolder', {
-			_jsns: 'urn:zimbraMail',
-			folder: {
-				view: 'message',
-				l: parentFolder.id || '2',
-				name
-			}
-		})) as { folder: any };
-		return folder;
-	}
-);
+export const createFolder = ({
+	parentFolder,
+	name
+}: {
+	name: string;
+	parentFolder?: { id: string };
+}): Promise<{ folder: any }> =>
+	soapFetch<any, { folder: any }>('CreateFolder', {
+		_jsns: 'urn:zimbraMail',
+		folder: {
+			view: 'message',
+			l: parentFolder?.id ?? '2',
+			name
+		}
+	});

@@ -16,11 +16,10 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { find, map, reduce } from 'lodash';
-import { useAppContext } from '@zextras/carbonio-shell-ui';
+import { useAppContext, useFolder } from '@zextras/carbonio-shell-ui';
 import { useTranslation } from 'react-i18next';
 import {
 	selectConversationStatus,
-	selectFolder,
 	selectFolderSearchStatus
 } from '../../../store/conversations-slice';
 import ConversationListItem from './lists-item/conversation-list-item';
@@ -78,7 +77,7 @@ const ConversationList = () => {
 	const conversationListStatus = useSelector((store) => selectFolderSearchStatus(store, folderId));
 
 	const { selected, isSelecting, toggle, deselectAll } = useSelection(folderId, setCount);
-	const folder = useSelector((state) => selectFolder(state, folderId));
+	const folder = useFolder(folderId);
 
 	const hasMore = useMemo(() => status === 'hasMore', [status]);
 

@@ -6,13 +6,12 @@
 import React, { useCallback, useEffect, useMemo, useState, useContext } from 'react';
 import { SnackbarManagerContext } from '@zextras/carbonio-design-system';
 import { filter, map, isEmpty, reduce, startsWith } from 'lodash';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { nanoid } from '@reduxjs/toolkit';
-import { FOLDERS, replaceHistory } from '@zextras/carbonio-shell-ui';
+import { FOLDERS, replaceHistory, useFolders } from '@zextras/carbonio-shell-ui';
 import { NewFolderConvoMsgMove } from './new-folder-conv-msg-move';
 import { MoveConvMsgModal } from './move-conv-msg-modal';
-import { selectFolders } from '../../store/folders-slice';
 import { convAction, msgAction } from '../../store/actions';
 import { createFolder } from '../../store/actions/create-folder';
 
@@ -29,7 +28,7 @@ const MoveConvMessage = ({ selectedIDs, isMessageView, isRestore, deselectAll, o
 	const [currentFolderName, setCurrentFolderName] = useState('');
 	const [folderDestination, setFolderDestination] = useState(currentFolder || {});
 	const [folderPosition, setFolderPosition] = useState(currentFolder.name);
-	const allFolders = useSelector(selectFolders);
+	const allFolders = useFolders();
 	const [input, setInput] = useState('');
 
 	const folders = useMemo(
@@ -308,14 +307,13 @@ const MoveConvMessage = ({ selectedIDs, isMessageView, isRestore, deselectAll, o
 	const data = useMemo(() => nest([rootEl, ...folders], '0'), [folders, nest, rootEl]);
 
 	const onConfirm = useCallback(() => {
-		dispatch(
-			createFolder({ parentFolder: folderDestination, name: inputValue, id: nanoid() })
-		).then((res) => {
-			if (res.type.includes('fulfilled')) {
+		createFolder({ parentFolder: folderDestination, name: inputValue, id: nanoid() })
+			.then((res) => {
 				isMessageView
 					? onConfirmMessageMove(res.payload[0].id)
 					: onConfirmConvMove(res.payload[0].id);
-			} else {
+			})
+			.catch(() => {
 				createSnackbar({
 					key: `edit`,
 					replace: true,
@@ -324,15 +322,13 @@ const MoveConvMessage = ({ selectedIDs, isMessageView, isRestore, deselectAll, o
 					autoHideTimeout: 3000,
 					hideButton: true
 				});
-			}
-		});
+			});
 
 		setInputValue('');
 		setLabel(t('folder_panel.modal.new.input.name'));
 		setFolderDestination('');
 		setHasError(false);
 	}, [
-		dispatch,
 		folderDestination,
 		inputValue,
 		t,

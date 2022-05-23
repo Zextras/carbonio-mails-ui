@@ -240,7 +240,7 @@ const useFolderActions = (folder: AccordionFolder): Array<FolderActionsProps> =>
 				click: (e): void => {
 					if (e) {
 						e.stopPropagation();
-						dispatch(folderAction({ folder: folder.folder, op: 'delete' }));
+						folderAction({ folder: folder.folder, op: 'delete' });
 					}
 				}
 			},
@@ -265,7 +265,7 @@ const useFolderActions = (folder: AccordionFolder): Array<FolderActionsProps> =>
 				}
 			}
 		],
-		[activeGrant, createModal, dispatch, folder, goBack, t]
+		[activeGrant, createModal, folder, goBack, t]
 	);
 
 	const defaultFolderActions = useMemo(
@@ -378,27 +378,24 @@ export const AccordionCustomComponent: FC<{ item: AccordionFolder }> = ({ item }
 		}
 
 		if (data.type === 'folder') {
-			dispatch(folderAction({ folder: data.data, l: folder.id || FOLDERS.USER_ROOT, op: 'move' }))
-				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-				// @ts-ignore
-				.then((res) => {
-					if (res.type.includes('fulfilled')) {
-						getBridgedFunctions().createSnackbar({
-							key: `move`,
-							replace: true,
-							type: 'success',
-							label: t('messages.snackbar.folder_moved', 'Folder successfully moved'),
-							autoHideTimeout: 3000
-						});
-					} else {
-						getBridgedFunctions().createSnackbar({
-							key: `move`,
-							replace: true,
-							type: 'error',
-							label: t('label.error_try_again', 'Something went wrong, please try again.'),
-							autoHideTimeout: 3000
-						});
-					}
+			folderAction({ folder: data.data, l: folder.id || FOLDERS.USER_ROOT, op: 'move' })
+				.then(() => {
+					getBridgedFunctions().createSnackbar({
+						key: `move`,
+						replace: true,
+						type: 'success',
+						label: t('messages.snackbar.folder_moved', 'Folder successfully moved'),
+						autoHideTimeout: 3000
+					});
+				})
+				.catch(() => {
+					getBridgedFunctions().createSnackbar({
+						key: `move`,
+						replace: true,
+						type: 'error',
+						label: t('label.error_try_again', 'Something went wrong, please try again.'),
+						autoHideTimeout: 3000
+					});
 				});
 		} else if (data.type === 'conversation') {
 			dispatch(

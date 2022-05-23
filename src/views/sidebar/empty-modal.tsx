@@ -7,7 +7,6 @@ import React, { FC, useCallback, useContext, useMemo } from 'react';
 import { Text, Container, SnackbarManagerContext } from '@zextras/carbonio-design-system';
 import { FOLDERS } from '@zextras/carbonio-shell-ui';
 import { useTranslation } from 'react-i18next';
-import { useDispatch } from 'react-redux';
 import ModalFooter from './commons/modal-footer';
 import { folderAction } from '../../store/actions/folder-action';
 import { ModalHeader } from './commons/modal-header';
@@ -15,40 +14,36 @@ import { ModalProps } from '../../types/commons';
 
 export const EmptyModal: FC<ModalProps> = ({ folder, onClose }) => {
 	const [t] = useTranslation();
-	const dispatch = useDispatch();
 	// eslint-disable-next-line @typescript-eslint/ban-types
 	const createSnackbar = useContext(SnackbarManagerContext) as Function;
 
 	const onConfirm = useCallback(() => {
-		dispatch(folderAction({ folder: folder.folder, recursive: true, op: 'empty' }))
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			// @ts-ignore
-			.then((res) => {
-				if (res.type.includes('fulfilled')) {
-					createSnackbar({
-						key: `trash`,
-						replace: true,
-						type: 'info',
-						label:
-							folder.id === FOLDERS.TRASH
-								? t('messages.snackbar.folder_empty', 'Trash successfully emptied')
-								: t('messages.snackbar.folder_wiped', 'Folder successfully wiped'),
-						autoHideTimeout: 3000,
-						hideButton: true
-					});
-				} else {
-					createSnackbar({
-						key: `trash`,
-						replace: true,
-						type: 'error',
-						label: t('label.error_try_again', 'Something went wrong, please try again.'),
-						autoHideTimeout: 3000,
-						hideButton: true
-					});
-				}
+		folderAction({ folder: folder.folder, recursive: true, op: 'empty' })
+			.then(() => {
+				createSnackbar({
+					key: `trash`,
+					replace: true,
+					type: 'info',
+					label:
+						folder.id === FOLDERS.TRASH
+							? t('messages.snackbar.folder_empty', 'Trash successfully emptied')
+							: t('messages.snackbar.folder_wiped', 'Folder successfully wiped'),
+					autoHideTimeout: 3000,
+					hideButton: true
+				});
+			})
+			.catch(() => {
+				createSnackbar({
+					key: `trash`,
+					replace: true,
+					type: 'error',
+					label: t('label.error_try_again', 'Something went wrong, please try again.'),
+					autoHideTimeout: 3000,
+					hideButton: true
+				});
 			});
 		onClose();
-	}, [dispatch, folder, onClose, createSnackbar, t]);
+	}, [folder, onClose, createSnackbar, t]);
 
 	const title = useMemo(
 		() =>

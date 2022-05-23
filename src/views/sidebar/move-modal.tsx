@@ -128,30 +128,27 @@ export const MoveModal: FC<ModalProps> = ({ folder, onClose }) => {
 	);
 
 	const onConfirm = useCallback(() => {
-		const restoreFolder = (): void =>
-			dispatch(folderAction({ folder: folder.folder, l: folder.folder.l, op: 'move' }))
-				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-				// @ts-ignore
-				.then((res) => {
-					if (res.type.includes('fulfilled')) {
-						createSnackbar({
-							key: `move-folder`,
-							replace: true,
-							type: 'success',
-							label: t('messages.snackbar.folder_restored', 'Folder restored'),
-							autoHideTimeout: 3000,
-							hideButton: true
-						});
-					} else {
-						createSnackbar({
-							key: `move`,
-							replace: true,
-							type: 'error',
-							label: t('label.error_try_again', 'Something went wrong, please try again'),
-							autoHideTimeout: 3000,
-							hideButton: true
-						});
-					}
+		const restoreFolder = (): Promise<void> =>
+			folderAction({ folder: folder.folder, l: folder.folder.l, op: 'move' })
+				.then(() => {
+					createSnackbar({
+						key: `move-folder`,
+						replace: true,
+						type: 'success',
+						label: t('messages.snackbar.folder_restored', 'Folder restored'),
+						autoHideTimeout: 3000,
+						hideButton: true
+					});
+				})
+				.catch(() => {
+					createSnackbar({
+						key: `move`,
+						replace: true,
+						type: 'error',
+						label: t('label.error_try_again', 'Something went wrong, please try again'),
+						autoHideTimeout: 3000,
+						hideButton: true
+					});
 				});
 
 		if (
@@ -159,43 +156,38 @@ export const MoveModal: FC<ModalProps> = ({ folder, onClose }) => {
 			!startsWith(folderDestination?.absFolderPath, folder.folder?.absFolderPath)
 		) {
 			// if (folderDestination?.id !== folder.id && folderDestination?.l !== folder.folder?.l) {
-			dispatch(
-				folderAction({
-					folder: folder.folder,
-					l: folderDestination?.id || FOLDERS.USER_ROOT,
-					op: 'move'
+			folderAction({
+				folder: folder.folder,
+				l: folderDestination?.id || FOLDERS.USER_ROOT,
+				op: 'move'
+			})
+				.then(() => {
+					createSnackbar({
+						key: `move`,
+						replace: true,
+						type: 'success',
+						label: t('messages.snackbar.folder_moved', 'Folder successfully moved'),
+						autoHideTimeout: 5000,
+						hideButton: false,
+						actionLabel: 'Undo',
+						onActionClick: () => restoreFolder()
+					});
 				})
-			)
-				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-				// @ts-ignore
-				.then((res) => {
-					if (res.type.includes('fulfilled')) {
-						createSnackbar({
-							key: `move`,
-							replace: true,
-							type: 'success',
-							label: t('messages.snackbar.folder_moved', 'Folder successfully moved'),
-							autoHideTimeout: 5000,
-							hideButton: false,
-							actionLabel: 'Undo',
-							onActionClick: () => restoreFolder()
-						});
-					} else {
-						createSnackbar({
-							key: `move`,
-							replace: true,
-							type: 'error',
-							label: t('label.error_try_again', 'Something went wrong, please try again.'),
-							autoHideTimeout: 3000
-						});
-					}
+				.catch(() => {
+					createSnackbar({
+						key: `move`,
+						replace: true,
+						type: 'error',
+						label: t('label.error_try_again', 'Something went wrong, please try again.'),
+						autoHideTimeout: 3000
+					});
 				});
 		}
 
 		setFolderDestination(undefined);
 		setSearchString('');
 		onClose();
-	}, [folderDestination, folder, onClose, dispatch, createSnackbar, t]);
+	}, [folderDestination, folder, onClose, createSnackbar, t]);
 
 	return folder ? (
 		<Container

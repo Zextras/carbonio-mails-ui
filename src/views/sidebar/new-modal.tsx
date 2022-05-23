@@ -159,29 +159,26 @@ export const NewModal: FC<ModalProps> = ({ folder, onClose }) => {
 	);
 
 	const onConfirm = useCallback(() => {
-		dispatch(createFolder({ parentFolder: folderDestination, name: inputValue, id: nanoid() }))
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			// @ts-ignore
-			.then((res: unknown & { type: string }) => {
-				if (res.type.includes('fulfilled')) {
-					createSnackbar({
-						key: `edit`,
-						replace: true,
-						type: 'success',
-						label: t('messages.snackbar.folder_created', 'New folder created'),
-						autoHideTimeout: 3000,
-						hideButton: true
-					});
-				} else {
-					createSnackbar({
-						key: `edit`,
-						replace: true,
-						type: 'error',
-						label: t('label.error_try_again', 'Something went wrong, please try again'),
-						autoHideTimeout: 3000,
-						hideButton: true
-					});
-				}
+		createFolder({ parentFolder: folderDestination, name: inputValue })
+			.then(() => {
+				createSnackbar({
+					key: `edit`,
+					replace: true,
+					type: 'success',
+					label: t('messages.snackbar.folder_created', 'New folder created'),
+					autoHideTimeout: 3000,
+					hideButton: true
+				});
+			})
+			.catch(() => {
+				createSnackbar({
+					key: `edit`,
+					replace: true,
+					type: 'error',
+					label: t('label.error_try_again', 'Something went wrong, please try again'),
+					autoHideTimeout: 3000,
+					hideButton: true
+				});
 			});
 		setSearchString('');
 		setInputValue('');
@@ -189,7 +186,7 @@ export const NewModal: FC<ModalProps> = ({ folder, onClose }) => {
 		setFolderDestination(undefined);
 		setHasError(false);
 		onClose();
-	}, [dispatch, folderDestination, inputValue, t, onClose, createSnackbar]);
+	}, [folderDestination, inputValue, t, onClose, createSnackbar]);
 
 	return folder ? (
 		<Container

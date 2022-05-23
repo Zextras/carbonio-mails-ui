@@ -8,7 +8,6 @@ import { Container, SnackbarManagerContext } from '@zextras/carbonio-design-syst
 import { FOLDERS } from '@zextras/carbonio-shell-ui';
 import { filter, includes, isEmpty } from 'lodash';
 import { useTranslation } from 'react-i18next';
-import { useDispatch } from 'react-redux';
 import ModalFooter from '../../commons/modal-footer';
 import { ModalHeader } from '../../commons/modal-header';
 import { folderAction } from '../../../../store/actions/folder-action';
@@ -45,7 +44,6 @@ type EditModalProps = ModalProps & {
 
 const EditDefaultModal: FC<EditModalProps> = ({ folder, onClose, setActiveModal }) => {
 	const [t] = useTranslation();
-	const dispatch = useDispatch();
 	// eslint-disable-next-line @typescript-eslint/ban-types
 	const createSnackbar = useContext(SnackbarManagerContext) as Function;
 
@@ -188,63 +186,58 @@ const EditDefaultModal: FC<EditModalProps> = ({ folder, onClose, setActiveModal 
 			else if (dspYear === 'y') pr = Number(purgeValue) * 365;
 			else pr = Number(purgeValue);
 
-			dispatch(
-				folderAction({
-					folder: {
-						...folder.folder,
-						parent: folder.folder?.l,
-						path: folder.folder?.absFolderPath,
-						absParent: '2',
-						children: []
-					},
-					name: inputValue,
-					op: 'update',
-					color: folderColor,
-					retentionPolicy:
-						dsblMsgRet || dsblMsgDis || folder?.folder.retentionPolicy
-							? {
-									keep: dsblMsgRet
-										? {
-												policy: {
-													lifetime: `${lt}d`,
-													type: 'user'
-												}
-										  }
-										: {},
-									purge: dsblMsgDis
-										? {
-												policy: {
-													lifetime: `${pr}d`,
-													type: 'user'
-												}
-										  }
-										: {}
-							  }
-							: {}
+			folderAction({
+				folder: {
+					...folder.folder,
+					parent: folder.folder?.l,
+					path: folder.folder?.absFolderPath,
+					absParent: '2',
+					children: []
+				},
+				name: inputValue,
+				op: 'update',
+				color: folderColor,
+				retentionPolicy:
+					dsblMsgRet || dsblMsgDis || folder?.folder.retentionPolicy
+						? {
+								keep: dsblMsgRet
+									? {
+											policy: {
+												lifetime: `${lt}d`,
+												type: 'user'
+											}
+									  }
+									: {},
+								purge: dsblMsgDis
+									? {
+											policy: {
+												lifetime: `${pr}d`,
+												type: 'user'
+											}
+									  }
+									: {}
+						  }
+						: {}
+			})
+				.then(() => {
+					createSnackbar({
+						key: `edit`,
+						replace: true,
+						type: 'info',
+						hideButton: true,
+						label: t('messages.snackbar.folder_edited', 'Changes correctly saved'),
+						autoHideTimeout: 3000
+					});
 				})
-			)
-				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-				// @ts-ignore
-				.then((res) => {
-					if (res.type.includes('fulfilled')) {
-						createSnackbar({
-							key: `edit`,
-							replace: true,
-							type: 'info',
-							hideButton: true,
-							label: t('messages.snackbar.folder_edited', 'Changes correctly saved'),
-							autoHideTimeout: 3000
-						});
-					} else {
-						createSnackbar({
-							key: `edit`,
-							replace: true,
-							type: 'error',
-							hideButton: true,
-							label: t('label.error_try_again', 'Something went wrong, please try again'),
-							autoHideTimeout: 3000
-						});
-					}
+				.catch(() => {
+					createSnackbar({
+						key: `edit`,
+						replace: true,
+						type: 'error',
+						hideButton: true,
+						label: t('label.error_try_again', 'Something went wrong, please try again'),
+						autoHideTimeout: 3000
+					});
 				});
 		}
 		setInputValue('');
@@ -258,7 +251,6 @@ const EditDefaultModal: FC<EditModalProps> = ({ folder, onClose, setActiveModal 
 		purgeValue,
 		rtnYear,
 		dspYear,
-		dispatch,
 		folder,
 		folderColor,
 		createSnackbar,

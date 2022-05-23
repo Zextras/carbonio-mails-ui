@@ -5,12 +5,12 @@
  */
 import React, { useCallback, useEffect, useMemo, useState, useContext } from 'react';
 import { CustomModal, SnackbarManagerContext } from '@zextras/carbonio-design-system';
+import { useFolders } from '@zextras/carbonio-shell-ui';
 import { filter, map, isEmpty, reduce, startsWith } from 'lodash';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { nanoid } from '@reduxjs/toolkit';
 import { createFolder } from '../store/actions/create-folder';
-import { selectFolders } from '../store/folders-slice';
 import { convAction, msgAction } from '../store/actions';
 import { NewFolderConvoMsgMove } from './move-conv-msg-modal/new-folder-conv-msg-move';
 import { MoveConvMsgModal } from './move-conv-msg-modal/move-conv-msg-modal';
@@ -27,7 +27,7 @@ export const MoveConvMessage = ({ selectedIDs, openModal, closeModal, isMessageV
 	const [currentFolder, setCurrentFolder] = useState('');
 	const [folderDestination, setFolderDestination] = useState(currentFolder || {});
 	const [folderPosition, setFolderPosition] = useState(currentFolder.name);
-	const allFolders = useSelector(selectFolders);
+	const allFolders = useFolders();
 	const [input, setInput] = useState('');
 	const folders = useMemo(
 		() =>
@@ -37,7 +37,7 @@ export const MoveConvMessage = ({ selectedIDs, openModal, closeModal, isMessageV
 					a.push({
 						...c,
 						id: c.id,
-						parent: c.parent,
+						parent: c.parent?.id,
 						label: c.name,
 						items: [],
 						badgeCounter: c.unreadCount > 0 ? c.unreadCount : undefined,
@@ -275,14 +275,13 @@ export const MoveConvMessage = ({ selectedIDs, openModal, closeModal, isMessageV
 	const data = useMemo(() => nest([rootEl, ...folders], '0'), [folders, nest, rootEl]);
 
 	const onConfirm = useCallback(() => {
-		dispatch(
-			createFolder({ parentFolder: folderDestination, name: inputValue, id: nanoid() })
-		).then((res) => {
-			if (res.type.includes('fulfilled')) {
+		createFolder({ parentFolder: folderDestination, name: inputValue, id: nanoid() })
+			.then((res) => {
 				isMessageView
 					? onConfirmMessageMove(res.payload[0].id)
 					: onConfirmConvMove(res.payload[0].id);
-			} else {
+			})
+			.catch(() => {
 				createSnackbar({
 					key: `edit`,
 					replace: true,
@@ -290,15 +289,13 @@ export const MoveConvMessage = ({ selectedIDs, openModal, closeModal, isMessageV
 					label: t('label.error_try_again', 'Something went wrong, please try again.'),
 					autoHideTimeout: 3000
 				});
-			}
-		});
+			});
 
 		setInputValue('');
 		setLabel(t('folder_panel.modal.new.input.name'));
 		setFolderDestination('');
 		setHasError(false);
 	}, [
-		dispatch,
 		folderDestination,
 		inputValue,
 		t,

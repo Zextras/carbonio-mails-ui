@@ -35,23 +35,7 @@ const ShareRevokeModal = ({ folder, onClose, grant, createSnackbar, goBack }) =>
 					accounts
 				})
 			).then(() => {
-				dispatch(folderAction({ folder, zid: grant.zid, op: '!grant' })).then((res) => {
-					if (res.type.includes('fulfilled')) {
-						createSnackbar({
-							key: `remove-share-${folder.id}`,
-							replace: true,
-							type: 'info',
-							label: t('snackbar.share_revoke', 'Share access revoked'),
-							autoHideTimeout: 2000,
-							hideButton: true
-						});
-					}
-					goBack();
-				});
-			});
-		} else {
-			dispatch(folderAction({ folder, zid: grant.zid, op: '!grant' })).then((res) => {
-				if (res.type.includes('fulfilled')) {
+				folderAction({ folder, zid: grant.zid, op: '!grant' }).then(() => {
 					createSnackbar({
 						key: `remove-share-${folder.id}`,
 						replace: true,
@@ -60,7 +44,19 @@ const ShareRevokeModal = ({ folder, onClose, grant, createSnackbar, goBack }) =>
 						autoHideTimeout: 2000,
 						hideButton: true
 					});
-				}
+					goBack();
+				});
+			});
+		} else {
+			dispatch(folderAction({ folder, zid: grant.zid, op: '!grant' })).then((res) => {
+				createSnackbar({
+					key: `remove-share-${folder.id}`,
+					replace: true,
+					type: 'info',
+					label: t('snackbar.share_revoke', 'Share access revoked'),
+					autoHideTimeout: 2000,
+					hideButton: true
+				});
 				goBack();
 			});
 		}

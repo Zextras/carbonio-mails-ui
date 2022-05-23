@@ -10,7 +10,8 @@ import {
 	useAppContext,
 	replaceHistory,
 	useTags,
-	ZIMBRA_STANDARD_COLORS
+	ZIMBRA_STANDARD_COLORS,
+	useFolder
 } from '@zextras/carbonio-shell-ui';
 import {
 	Badge,
@@ -27,7 +28,6 @@ import moment from 'moment';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { getTimeLabel, participantToString } from '../../../../commons/utils';
-import { selectFolder } from '../../../../store/conversations-slice';
 import { ItemAvatar } from './item-avatar';
 import ListItemActionWrapper from './list-item-actions-wrapper';
 import { setMsgRead } from '../../../../ui-actions/message-actions';
@@ -83,7 +83,7 @@ export default function MessageListItem({
 	const [t] = useTranslation();
 	const accounts = useUserAccounts();
 	const { isMessageView } = useAppContext();
-	const messageFolder = useSelector((state) => selectFolder(state, item.parent));
+	const messageFolder = useFolder(item.parent);
 	const ids = useMemo(() => Object.keys(selectedItems ?? []), [selectedItems]);
 	const dispatch = useDispatch();
 	const tagsFromStore = useTags();

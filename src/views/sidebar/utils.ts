@@ -45,35 +45,6 @@ export const normalizeFolder = (
 		isNil
 	);
 
-export const extractFolders = (accordion: Array<any>, acc = {}): any =>
-	reduce(
-		accordion,
-		(acc2, folder) => {
-			if (folder.folder) {
-				return (folder.view === 'message' &&
-					folder.id !== FOLDERS.IM_LOGS &&
-					folder.id !== FOLDERS.USER_ROOT) ||
-					folder.id === FOLDERS.TRASH
-					? {
-							...acc2,
-							[folder.id]: normalizeFolder(folder),
-							...extractFolders(folder.folder, acc2)
-					  }
-					: { ...acc2, ...extractFolders(folder.folder, acc2) };
-			}
-			return (folder.view === 'message' &&
-				folder.id !== FOLDERS.IM_LOGS &&
-				folder.id !== FOLDERS.USER_ROOT) ||
-				folder.id === FOLDERS.TRASH
-				? {
-						...acc2,
-						[folder.id]: normalizeFolder(folder)
-				  }
-				: acc2;
-		},
-		acc
-	);
-
 export const capitalise = (word: string): string => {
 	const asciiRef = word.charCodeAt(0);
 	const newAsciiRef = asciiRef - 32;

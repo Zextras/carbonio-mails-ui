@@ -13,13 +13,11 @@ import {
 	IconButton,
 	Icon,
 	Padding,
-	Badge,
-	Text
+	Badge
 } from '@zextras/carbonio-design-system';
 import { useTranslation } from 'react-i18next';
 
-import { useSelector } from 'react-redux';
-import { selectFolders } from '../../../../../store/folders-slice';
+import { useFolders } from '@zextras/carbonio-shell-ui';
 import ContactNames from './contact-names';
 import { MailMessage } from '../../../../../types/mail-message';
 
@@ -34,7 +32,7 @@ const MessageContactList: FC<{ message: MailMessage; folderId: string }> = ({
 		e.preventDefault();
 		setOpen((o) => !o);
 	}, []);
-	const folders = useSelector(selectFolders);
+	const folders = useFolders();
 
 	const toContacts = useMemo(
 		() => filter(message.participants, ['type', 't']),

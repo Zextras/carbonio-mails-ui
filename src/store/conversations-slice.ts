@@ -236,10 +236,6 @@ export function selectConversationExpandedStatus(
 	return conversations?.expandedStatus?.[id];
 }
 
-export function selectFolder({ folders }: StateType, id: string): Folder {
-	return folders?.folders?.[id];
-}
-
 export function selectCurrentFolder({ conversations }: StateType): string {
 	return conversations?.currentFolder;
 }
