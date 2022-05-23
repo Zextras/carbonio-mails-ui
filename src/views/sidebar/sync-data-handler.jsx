@@ -38,21 +38,22 @@ import {
 } from '../../store/messages-slice';
 import { normalizeConversation } from '../../normalizations/normalize-conversation';
 import { normalizeMailMessageFromSoap } from '../../normalizations/normalize-message';
-import { extractFolders } from './utils';
 import { MAILS_ROUTE } from '../../constants';
 
 const InboxBadgeUpdater = () => {
 	const folder = useFolder(FOLDERS.INBOX);
 	useEffect(() => {
-		updatePrimaryBadge(
-			{
-				show: folder.unreadCount > 0,
-				count: folder.unreadCount,
-				showCount: true
-			},
-			MAILS_ROUTE
-		);
-	}, [folder.unreadCount]);
+		if (folder?.u) {
+			updatePrimaryBadge(
+				{
+					show: folder.u > 0,
+					count: folder.u,
+					showCount: true
+				},
+				MAILS_ROUTE
+			);
+		}
+	}, [folder, folder?.unreadCount]);
 	return null;
 };
 
