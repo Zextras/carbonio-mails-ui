@@ -7,7 +7,13 @@
 /* eslint-disable import/extensions */
 
 import React, { FC, ReactElement } from 'react';
-import { Container, Button, Padding, Divider, Checkbox } from '@zextras/carbonio-design-system';
+import {
+	Container,
+	ButtonOld as Button,
+	Padding,
+	Divider,
+	Checkbox
+} from '@zextras/carbonio-design-system';
 
 type ModalFooterProps = {
 	onConfirm: () => void;

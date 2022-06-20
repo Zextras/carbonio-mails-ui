@@ -6,7 +6,7 @@
 import React, { useCallback, useContext, useMemo, useState } from 'react';
 import { map, replace, split } from 'lodash';
 import {
-	Button,
+	ButtonOld as Button,
 	Chip,
 	Container,
 	Divider,

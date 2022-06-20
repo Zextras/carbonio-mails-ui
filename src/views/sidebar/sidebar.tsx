@@ -12,7 +12,12 @@ import {
 	// @ts-ignore
 	useLocalStorage
 } from '@zextras/carbonio-shell-ui';
-import { Accordion, Container, Button, ModalManagerContext } from '@zextras/carbonio-design-system';
+import {
+	Accordion,
+	Container,
+	ButtonOld as Button,
+	ModalManagerContext
+} from '@zextras/carbonio-design-system';
 import { Route, Switch, useRouteMatch, useParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { filter, isEqual, uniqWith } from 'lodash';

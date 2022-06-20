@@ -17,7 +17,7 @@ import {
 } from '@zextras/carbonio-shell-ui';
 import {
 	Badge,
-	Button,
+	ButtonOld as Button,
 	Container,
 	Icon,
 	IconButton,

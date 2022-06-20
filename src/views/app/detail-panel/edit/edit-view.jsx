@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Button, Catcher, Container } from '@zextras/carbonio-design-system';
+import { ButtonOld as Button, Catcher, Container } from '@zextras/carbonio-design-system';
 import { useDispatch, useSelector } from 'react-redux';
 import { throttle, filter, isNil } from 'lodash';
 import {

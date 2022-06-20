@@ -19,7 +19,7 @@ import {
 	Container,
 	Accordion,
 	Padding,
-	Button,
+	ButtonOld as Button,
 	SnackbarManagerContext
 } from '@zextras/carbonio-design-system';
 import { cloneDeep, filter, startsWith } from 'lodash';

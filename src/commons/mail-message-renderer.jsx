@@ -9,7 +9,7 @@ import { Trans, useTranslation } from 'react-i18next';
 import {
 	Container,
 	Text,
-	Button,
+	ButtonOld as Button,
 	Row,
 	Icon,
 	Padding,

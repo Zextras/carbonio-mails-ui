@@ -6,7 +6,7 @@
 
 import { useIntegratedComponent } from '@zextras/carbonio-shell-ui';
 import React, { FC, ReactElement, useCallback, useContext, useEffect, useState } from 'react';
-import { Button, ChipInput, Container } from '@zextras/carbonio-design-system';
+import { ButtonOld as Button, ChipInput, Container } from '@zextras/carbonio-design-system';
 import { Controller } from 'react-hook-form';
 import { map, some } from 'lodash';
 import { useTranslation } from 'react-i18next';

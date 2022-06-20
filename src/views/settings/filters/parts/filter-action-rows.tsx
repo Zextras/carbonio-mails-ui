@@ -6,7 +6,7 @@
 import React, { FC, ReactElement, useMemo, useCallback, useState, useEffect } from 'react';
 import {
 	Container,
-	Button,
+	ButtonOld as Button,
 	Row,
 	Icon,
 	Padding,

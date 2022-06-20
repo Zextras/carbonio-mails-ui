@@ -12,7 +12,7 @@ import {
 	Input,
 	List,
 	Row,
-	Button,
+	ButtonOld as Button,
 	Padding
 } from '@zextras/carbonio-design-system';
 import styled from 'styled-components';

@@ -20,7 +20,7 @@ import {
 	Collapse,
 	Icon,
 	Padding,
-	Button,
+	ButtonOld as Button,
 	Row,
 	SnackbarManagerContext
 } from '@zextras/carbonio-design-system';
