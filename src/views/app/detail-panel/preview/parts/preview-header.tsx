@@ -3,34 +3,48 @@
  *
  * SPDX-License-Identifier: AGPL-3.0-only
  */
+import React, {
+	FC,
+	ReactElement,
+	useCallback,
+	useContext,
+	useLayoutEffect,
+	useMemo,
+	useRef,
+	useState
+} from 'react';
+import styled from 'styled-components';
 import {
-	Avatar,
-	Chip,
 	Container,
-	ContainerProps,
-	Dropdown,
+	Text,
+	Avatar,
 	Icon,
 	Padding,
 	Row,
-	Text,
 	ThemeContext,
 	Tooltip,
+	Chip,
+	Dropdown
 } from '@zextras/carbonio-design-system';
-import { runSearch, useTags, useUserAccounts, ZIMBRA_STANDARD_COLORS } from '@zextras/carbonio-shell-ui';
 import { capitalize, every, find, includes, isEmpty, map, reduce } from 'lodash';
-import React, { FC, ReactElement, useCallback, useContext, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import {
+	useTags,
+	useUserAccounts,
+	ZIMBRA_STANDARD_COLORS,
+	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+	// @ts-ignore
+	runSearch
+} from '@zextras/carbonio-shell-ui';
 import { useParams } from 'react-router-dom';
-import styled from 'styled-components';
-import { getTimeLabel, participantToString } from '../../../../../commons/utils';
+import OnBehalfOfDisplayer from './on-behalf-of-displayer';
+import MailMsgPreviewActions from '../../../../../ui-actions/mail-message-preview-actions';
 import { useMessageActions } from '../../../../../hooks/use-message-actions';
 import { retrieveAttachmentsType } from '../../../../../store/editor-slice-utils';
-import { MailMessage } from '../../../../../types/mail-message';
-import { ParticipantRole } from '../../../../../types/participant';
-import MailMsgPreviewActions from '../../../../../ui-actions/mail-message-preview-actions';
-import { useTagExist } from '../../../../../ui-actions/tag-actions';
+import { getTimeLabel, participantToString } from '../../../../../commons/utils';
 import MessageContactsList from './message-contact-list';
-import OnBehalfOfDisplayer from './on-behalf-of-displayer';
+import { MailMessage } from '../../../../../types/mail-message';
+import { useTagExist } from '../../../../../ui-actions/tag-actions';
 
 interface HoverContainerProps extends ContainerProps {
 	isExpanded: boolean;
@@ -54,7 +68,7 @@ const TagChip = styled(Chip)`
 type PreviewHeaderProps = {
 	compProps: {
 		message: MailMessage;
-		onClick: (e: any) => void;
+		onClick: (e: SyntheticEvent) => void;
 		open: boolean;
 	};
 };
@@ -64,18 +78,18 @@ type ThemeType = { sizes: { icon: { large: string } } };
 const fallbackContact = { address: '', displayName: '', fullName: '' };
 
 const PreviewHeader: FC<PreviewHeaderProps> = ({ compProps }): ReactElement => {
-	const { message, onClick, open } = compProps;
+	const { message, onClick, open, isAlone } = compProps;
 
 	const textRef = useRef<HTMLInputElement>(null);
 	const [t] = useTranslation();
 	const accounts = useUserAccounts();
 
 	const [_minWidth, _setMinWidth] = useState('');
-	const actions = useMessageActions(message);
+	const actions = useMessageActions(message, isAlone);
 	const mainContact = find(message.participants, ['type', 'f']) || fallbackContact;
 	const _onClick = useCallback((e) => !e.isDefaultPrevented() && onClick(e), [onClick]);
 	const attachments = retrieveAttachmentsType(message, 'attachment');
-	let senderContact = find(message.participants, ['type', 's']);
+	const senderContact = find(message.participants, ['type', 's']);
 	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 	// @ts-ignore
 	const { folderId } = useParams();

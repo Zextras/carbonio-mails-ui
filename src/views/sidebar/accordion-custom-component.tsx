@@ -51,6 +51,7 @@ import { DataProps } from '../../types/commons';
 
 const FittedRow = styled(Row)`
 	max-width: calc(100% - (2 * ${({ theme }): string => theme.sizes.padding.small}));
+	height: 48px;
 `;
 
 interface DropOverlayContainer {
