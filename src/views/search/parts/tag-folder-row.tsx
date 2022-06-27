@@ -8,6 +8,7 @@ import { Container, ChipInput } from '@zextras/carbonio-design-system';
 import { TFunction } from 'i18next';
 import { filter } from 'lodash';
 import { ZIMBRA_STANDARD_COLORS } from '@zextras/carbonio-shell-ui';
+import { SearchChipItem } from '../../../types/commons';
 import FolderSelectModal from './folder-modal';
 
 type ComponentProps = {
@@ -22,14 +23,22 @@ type ComponentProps = {
 };
 const TagFolderRow: FC<ComponentProps> = ({ compProps }): ReactElement => {
 	const { t, folder, setFolder, tagOptions, tag, setTag } = compProps;
-	const chipBackground = useMemo(() => 'gray5', []);
+	const chipBackground = 'gray5';
 	const [open, setOpen] = useState(false);
 
 	const onClose = useCallback(() => setOpen(false), []);
 	const openFolderModal = useCallback(() => setOpen(true), []);
 
 	const chipOnAdd = useCallback(
-		(label, preText, hasAvatar, isGeneric, isQueryFilter, avatarIcon, avatarBackground) => ({
+		(
+			label,
+			preText,
+			hasAvatar,
+			isGeneric,
+			isQueryFilter,
+			avatarIcon,
+			avatarBackground
+		): SearchChipItem => ({
 			label: `${preText}:${label}`,
 			hasAvatar,
 			isGeneric,
@@ -43,11 +52,12 @@ const TagFolderRow: FC<ComponentProps> = ({ compProps }): ReactElement => {
 	);
 
 	const folderChipOnAdd = useCallback(
-		(label: string): any => chipOnAdd(label, 'in', true, false, true, 'FolderOutline', ''),
+		(label: string | unknown): any =>
+			chipOnAdd(label, 'in', true, false, true, 'FolderOutline', ''),
 		[chipOnAdd]
 	);
 	const tagChipOnAdd = useCallback(
-		(label: string): any => {
+		(label: string | unknown): SearchChipItem => {
 			const chipBg = filter(tagOptions, { label })[0];
 			return chipOnAdd(
 				label,

@@ -7,6 +7,7 @@ import React, { FC, ReactElement, useMemo } from 'react';
 
 import { TextWithTooltip } from '@zextras/carbonio-design-system';
 import { capitalize } from 'lodash';
+import { renderToString } from 'react-dom/server';
 import styled from 'styled-components';
 import { useTranslation } from 'react-i18next';
 import { MailMessage } from '../../../../../types/mail-message';
@@ -39,8 +40,9 @@ const OnBehalfOfDisplayer: FC<{
 	);
 
 	const behalfOfLabel = useMemo(() => t('label.behalf_of', 'behalf of'), [t]);
+
 	return (
-		<TextWithTooltip>
+		<TextWithTooltip tooltipPlacement="bottom">
 			<StyledText isRead={message.read}>{fullName}</StyledText>
 			<StyledText color="secondary" isRead={message.read}>
 				{` <${address}> `}

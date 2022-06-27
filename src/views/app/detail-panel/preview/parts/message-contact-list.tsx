@@ -14,7 +14,7 @@ import {
 	Icon,
 	Padding,
 	Badge,
-	Text
+	BadgeProps
 } from '@zextras/carbonio-design-system';
 import { useTranslation } from 'react-i18next';
 
@@ -55,10 +55,15 @@ const MessageContactList: FC<{ message: MailMessage; folderId: string }> = ({
 
 	const textReadValues = useMemo(() => {
 		if (typeof message.read === 'undefined')
-			return { color: 'text', weight: 'regular', badge: 'read', size: 'small' };
+			return {
+				color: 'text',
+				weight: 'regular',
+				badge: 'read' as BadgeProps['type'],
+				size: 'small'
+			};
 		return message.read
-			? { color: 'text', weight: 'regular', badge: 'read', size: 'small' }
-			: { color: 'primary', weight: 'bold', badge: 'unread', size: 'medium' };
+			? { color: 'text', weight: 'regular', badge: 'read' as BadgeProps['type'], size: 'small' }
+			: { color: 'primary', weight: 'bold', badge: 'unread' as BadgeProps['type'], size: 'medium' };
 	}, [message.read]);
 
 	const messageFolder = useMemo(

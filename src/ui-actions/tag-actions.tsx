@@ -36,7 +36,7 @@ export type ReturnType = {
 	id: string;
 	icon: string;
 	label: string;
-	click?: (arg: React.SyntheticEvent<EventTarget>) => void;
+	click?: (arg: React.SyntheticEvent<HTMLElement, Event> | KeyboardEvent) => void;
 	items?: Array<{
 		customComponent: ComponentType;
 		id: string;
@@ -59,7 +59,7 @@ export const createTag = ({ t, createModal }: ArgumentType): ReturnType => ({
 	id: TagsActionsType.NEW,
 	icon: 'TagOutline',
 	label: t('label.create_tag', 'Create Tag'),
-	click: (e: React.SyntheticEvent<EventTarget>): void => {
+	click: (e: React.SyntheticEvent<HTMLElement, Event> | KeyboardEvent): void => {
 		if (e) {
 			e.stopPropagation();
 		}
@@ -76,7 +76,7 @@ export const editTag = ({ t, createModal, tag }: ArgumentType): ReturnType => ({
 	id: TagsActionsType.EDIT,
 	icon: 'Edit2Outline',
 	label: t('label.edit_tag', 'Edit Tag'),
-	click: (e: React.SyntheticEvent<EventTarget>): void => {
+	click: (e: React.SyntheticEvent<HTMLElement, Event> | KeyboardEvent): void => {
 		if (e) {
 			e.stopPropagation();
 		}
@@ -95,7 +95,7 @@ export const deleteTag = ({ t, createModal, tag }: ArgumentType): ReturnType => 
 	id: TagsActionsType.DELETE,
 	icon: 'Untag',
 	label: t('label.delete_tag', 'Delete Tag'),
-	click: (e: React.SyntheticEvent<EventTarget>): void => {
+	click: (e: React.SyntheticEvent<HTMLElement, Event> | KeyboardEvent): void => {
 		if (e) {
 			e.stopPropagation();
 		}

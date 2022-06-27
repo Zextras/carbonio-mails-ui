@@ -21,7 +21,7 @@ const FilterModule: FC<ComponentProps> = ({ t }): ReactElement => {
 			<Container
 				orientation="horizontal"
 				padding={{ horizontal: 'medium', top: 'medium' }}
-				mainAllignment="space-between"
+				mainAlignment="space-between"
 			>
 				<Container width="50%" id={sectionTitle.id}>
 					<Heading title={sectionTitle.label} size="medium" />

@@ -12,7 +12,8 @@ import {
 	Input,
 	Checkbox,
 	RadioGroup,
-	Radio
+	Radio,
+	SelectItem
 } from '@zextras/carbonio-design-system';
 import { TFunction } from 'react-i18next';
 import Heading from './components/settings-heading';
@@ -57,8 +58,10 @@ const DisplayingMessagesSettings: FC<DisplayingMessagesSettingsProps> = ({
 	const conversationSortingSettings = useMemo(() => ConversationSortingSettings(t), [t]);
 	const sectionTitle = useMemo(() => displayingMessagesSubSection(t), [t]);
 	const onChangeSorting = useCallback(
-		(view: string): void =>
-			updateSettings({ target: { name: 'zimbraPrefConversationOrder', value: view } }),
+		(view: SelectItem[] | string | null): void =>
+			updateSettings({
+				target: { name: 'zimbraPrefConversationOrder', value: typeof view === 'string' ? view : '' }
+			}),
 		[updateSettings]
 	);
 	const defaultSelectionSorting = useMemo(
@@ -82,8 +85,13 @@ const DisplayingMessagesSettings: FC<DisplayingMessagesSettingsProps> = ({
 				<Select
 					label={t('settings.label.check_new_mail', 'Check new e-mail')}
 					items={checkNewMailOptions}
-					onChange={(view: string): void =>
-						updateSettings({ target: { name: 'zimbraPrefMailPollingInterval', value: view } })
+					onChange={(view: SelectItem[] | string | null): void =>
+						updateSettings({
+							target: {
+								name: 'zimbraPrefMailPollingInterval',
+								value: typeof view === 'string' ? view : ''
+							}
+						})
 					}
 					defaultSelection={{
 						label: findLabel(checkNewMailOptions, settingsObj.zimbraPrefMailPollingInterval),
@@ -96,9 +104,13 @@ const DisplayingMessagesSettings: FC<DisplayingMessagesSettingsProps> = ({
 				<Select
 					label={t('settings.label.display_mail', 'Display mail')}
 					items={displayMailOptions}
-					onChange={(view: string): void =>
+					multiple={false}
+					onChange={(view: SelectItem[] | string | null): void =>
 						updateSettings({
-							target: { name: 'zimbraPrefMessageViewHtmlPreferred', value: view }
+							target: {
+								name: 'zimbraPrefMessageViewHtmlPreferred',
+								value: typeof view === 'string' ? view : ''
+							}
 						})
 					}
 					defaultSelection={{
@@ -131,8 +143,13 @@ const DisplayingMessagesSettings: FC<DisplayingMessagesSettingsProps> = ({
 				<Heading title={t('settings.label.message_selection', 'Message Selection')} />
 				<Select
 					items={messageSelectionOptions}
-					onChange={(view: string): void =>
-						updateSettings({ target: { name: 'zimbraPrefMailSelectAfterDelete', value: view } })
+					onChange={(view: SelectItem[] | string | null): void =>
+						updateSettings({
+							target: {
+								name: 'zimbraPrefMailSelectAfterDelete',
+								value: typeof view === 'string' ? view : ''
+							}
+						})
 					}
 					defaultSelection={{
 						label: findLabel(messageSelectionOptions, settingsObj.zimbraPrefMailSelectAfterDelete),
@@ -163,7 +180,6 @@ const DisplayingMessagesSettings: FC<DisplayingMessagesSettingsProps> = ({
 				<RadioGroup
 					style={{ width: '100%' }}
 					value={settingsObj.zimbraPrefGroupMailBy}
-					mainAlignment="flex-start"
 					onChange={(newValue: string): void => {
 						updateSettings({ target: { name: 'zimbraPrefGroupMailBy', value: newValue } });
 					}}

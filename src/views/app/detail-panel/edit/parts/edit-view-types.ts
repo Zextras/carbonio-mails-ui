@@ -4,10 +4,12 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 
+import { SnackbarProps } from '@zextras/carbonio-design-system';
+
 export type CreateSnackbar = (arg: {
 	key: string;
 	replace?: boolean;
-	type: string;
+	type: SnackbarProps['type'];
 	hideButton?: boolean;
 	label: string;
 	autoHideTimeout: number;

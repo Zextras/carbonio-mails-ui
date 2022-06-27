@@ -3,10 +3,10 @@
  *
  * SPDX-License-Identifier: AGPL-3.0-only
  */
-import React, { FC, ReactElement, useCallback, useMemo } from 'react';
-import { Container, ChipInput } from '@zextras/carbonio-design-system';
+import React, { FC, ReactElement, useCallback } from 'react';
+import { Container, ChipInput, ChipItem } from '@zextras/carbonio-design-system';
 import { TFunction } from 'i18next';
-import { isValidEmail } from './utils';
+import { SearchChipItem } from '../../../types/commons';
 
 type ComponentProps = {
 	compProps: {
@@ -23,15 +23,15 @@ const SubjectKeywordRow: FC<ComponentProps> = ({ compProps }): ReactElement => {
 		stateHandler(state);
 	}, []);
 	const keywordChipOnAdd = useCallback(
-		(label) => ({
-			label,
+		(label: string | unknown): SearchChipItem => ({
+			label: typeof label === 'string' ? label : '',
 			hasAvatar: false,
 			isGeneric: true
 		}),
 		[]
 	);
 	const chipOnAdd = useCallback(
-		(label, preText, hasAvatar, isGeneric, isQueryFilter) => ({
+		(label, preText, hasAvatar, isGeneric, isQueryFilter): SearchChipItem => ({
 			label: `${preText}:${label}`,
 			hasAvatar,
 			isGeneric,
@@ -42,52 +42,21 @@ const SubjectKeywordRow: FC<ComponentProps> = ({ compProps }): ReactElement => {
 	);
 
 	const subjectOnChange = useCallback(
-		(label: string): void => onChange(label, setSubject),
+		(label: ChipItem[]): void => onChange(label, setSubject),
 		[onChange, setSubject]
 	);
 
 	const keywordOnChange = useCallback(
-		(label: string): void => onChange(label, setOtherKeywords),
+		(label: ChipItem[]): void => onChange(label, setOtherKeywords),
 		[onChange, setOtherKeywords]
 	);
 
 	const subjectChipOnAdd = useCallback(
-		(label: string): any => chipOnAdd(label, 'Subject', false, false, true),
+		(label: string | unknown): ChipItem => chipOnAdd(label, 'Subject', false, false, true),
 		[chipOnAdd]
 	);
 
-	const chipOnAdded = useCallback(
-		(label, preText, hasAvatar, isGeneric, isQueryFilter, hasError, icon) => {
-			const chip = {
-				label: `${preText}:${label}`,
-				hasAvatar,
-				isGeneric,
-				isQueryFilter,
-				value: `${preText}:${label}`,
-				hasError,
-				icon
-			};
-			if (!isValidEmail(label)) {
-				chip.hasError = true;
-			}
-			chip.icon = 'EmailOutline';
-			return chip;
-		},
-		[]
-	);
-
-	const recipChipOnAdd = useCallback(
-		(label: string): any => chipOnAdded(label, 'from', false, false, true, false, 'EmailOutline'),
-		[chipOnAdded]
-	);
-
-	const senderChipOnAdd = useCallback(
-		(label: string): any => chipOnAdded(label, 'to', false, false, true, false, 'EmailOutline'),
-		[chipOnAdded]
-	);
-
-	const subjectPlaceholder = useMemo(() => t('label.subject', 'Subject'), [t]);
-	const chipBackground = useMemo(() => 'gray5', []);
+	const chipBackground = 'gray5';
 
 	return (
 		<React.Fragment>
@@ -104,7 +73,7 @@ const SubjectKeywordRow: FC<ComponentProps> = ({ compProps }): ReactElement => {
 				</Container>
 				<Container padding={{ left: 'extrasmall' }} maxWidth="50%">
 					<ChipInput
-						placeholder={subjectPlaceholder}
+						placeholder={t('label.subject', 'Subject')}
 						background={chipBackground}
 						value={subject}
 						confirmChipOnSpace={false}

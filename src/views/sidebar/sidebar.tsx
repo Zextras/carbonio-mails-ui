@@ -53,7 +53,7 @@ const SidebarComponent: FC<SidebarComponentProps> = ({ accordions, openIds }) =>
 					label={t('label.find_shares', 'Find shares')}
 					color="primary"
 					size="fill"
-					onClick={(ev: MouseEvent): void => {
+					onClick={(ev): void => {
 						ev.stopPropagation();
 						dispatch(getShareInfo())
 							// eslint-disable-next-line @typescript-eslint/ban-ts-comment

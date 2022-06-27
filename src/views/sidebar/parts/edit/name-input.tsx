@@ -33,7 +33,7 @@ const NameInputRow: FC<NameInputRowProps> = ({
 				onChange={(e: ChangeEvent<HTMLInputElement>): void => setInputValue(e.target.value)}
 				disabled={inpDisable}
 				value={inputValue}
-				background="gray5"
+				backgroundColor="gray5"
 				borderColor={showWarning ? 'error' : 'gray2'}
 				textColor={showWarning ? 'error' : 'text'}
 			/>

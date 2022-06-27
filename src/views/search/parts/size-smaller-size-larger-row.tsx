@@ -4,8 +4,9 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 import React, { FC, ReactElement, useCallback, useMemo, useState } from 'react';
-import { Container, ChipInput } from '@zextras/carbonio-design-system';
+import { Container, ChipInput, ChipItem } from '@zextras/carbonio-design-system';
 import { TFunction } from 'i18next';
+import { SearchChipItem } from '../../../types/commons';
 
 type ComponentProps = {
 	compProps: {
@@ -29,7 +30,7 @@ const SizeLargerSizeSmallerRow: FC<ComponentProps> = ({ compProps }): ReactEleme
 	}, []);
 
 	const chipOnAdd = useCallback(
-		(label, preText, hasAvatar, isGeneric, isQueryFilter, avatarIcon, error) => ({
+		(label, preText, hasAvatar, isGeneric, isQueryFilter, avatarIcon, error): SearchChipItem => ({
 			label: `${preText}:${label}MB`,
 			hasAvatar,
 			isGeneric,
@@ -54,39 +55,41 @@ const SizeLargerSizeSmallerRow: FC<ComponentProps> = ({ compProps }): ReactEleme
 	);
 
 	const sizeSmallerChipOnAdd = useCallback(
-		(label: string): any => {
-			checkErrorSizeSmaller(label);
+		(value: string | unknown): SearchChipItem => {
+			const stringValue: string = typeof value === 'string' ? value : '';
+			checkErrorSizeSmaller(stringValue);
 			return chipOnAdd(
-				label,
+				stringValue,
 				'Smaller',
 				true,
 				true,
 				true,
 				'CollapseOutline',
-				!label.match(/^[0-9]+$/)
+				!stringValue.match(/^\d+$/)
 			);
 		},
 		[chipOnAdd, checkErrorSizeSmaller]
 	);
 
 	const sizeLargerChipOnAdd = useCallback(
-		(label: string): any => {
-			checkErrorSizeLarger(label);
+		(value: string | unknown): SearchChipItem => {
+			const stringValue: string = typeof value === 'string' ? value : '';
+			checkErrorSizeLarger(stringValue);
 			return chipOnAdd(
-				label,
+				stringValue,
 				'Larger',
 				true,
 				true,
 				true,
 				'ExpandOutline',
-				!label.match(/^[0-9]+$/)
+				!stringValue.match(/^\d+$/)
 			);
 		},
 		[chipOnAdd, checkErrorSizeLarger]
 	);
 
 	const sizeSmallerOnChange = useCallback(
-		(label: string): void => {
+		(label: ChipItem[]): void => {
 			onChange(label, setSizeSmaller);
 			if (label.length === 0) setIsInvalidSmallSize(false);
 		},
@@ -94,7 +97,7 @@ const SizeLargerSizeSmallerRow: FC<ComponentProps> = ({ compProps }): ReactEleme
 	);
 
 	const sizeLargerOnChange = useCallback(
-		(label: string): void => {
+		(label: ChipItem[]): void => {
 			onChange(label, setSizeLarger);
 			if (label.length === 0) setIsInvalidLargeSize(false);
 		},

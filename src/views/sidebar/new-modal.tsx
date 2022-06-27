@@ -61,10 +61,11 @@ export const NewModal: FC<ModalProps> = ({ folder, onClose }) => {
 	const [folderDestination, setFolderDestination] = useState<AccordionFolder | undefined>(folder);
 	const [disabled, setDisabled] = useState(true);
 	const [hasError, setHasError] = useState(false);
-	const [label, setLabel] = useState(t('folder_panel.modal.new.input.name', 'Enter Folder Name'));
+	const initialLabel = t('folder_panel.modal.new.input.name', 'Enter Folder Name');
+	const [label, setLabel] = useState(initialLabel);
 	const { folderId } = useParams<{ folderId: string }>();
 	const accountName = useUserAccount().name;
-	const accordionRef = useRef<HTMLDivElement>();
+	const accordionRef = useRef<HTMLDivElement>(null);
 	const [accordionWidth, setAccordionWidth] = useState<number>();
 
 	useLayoutEffect(() => {
@@ -111,6 +112,8 @@ export const NewModal: FC<ModalProps> = ({ folder, onClose }) => {
 					});
 				if (items) result.push(...flattenFolders(items));
 			});
+
+			console.log('**** result', result);
 			return result;
 		},
 		[accordionWidth, accountName, folderId, folderDestination]
