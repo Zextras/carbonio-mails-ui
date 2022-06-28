@@ -6,7 +6,6 @@
 import React, {
 	FC,
 	ReactElement,
-	SyntheticEvent,
 	useCallback,
 	useContext,
 	useLayoutEffect,
@@ -73,7 +72,6 @@ type PreviewHeaderProps = {
 		message: MailMessage;
 		onClick: (e: SyntheticEvent) => void;
 		open: boolean;
-		isAlone: boolean;
 	};
 };
 
