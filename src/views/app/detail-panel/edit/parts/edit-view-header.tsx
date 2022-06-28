@@ -3,7 +3,16 @@
  *
  * SPDX-License-Identifier: AGPL-3.0-only
  */
-import React, { FC, ReactElement, useCallback, useContext, useMemo, useRef, useState } from 'react';
+import React, {
+	FC,
+	ReactElement,
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+	useState
+} from 'react';
 import { Controller } from 'react-hook-form';
 
 import { useTranslation } from 'react-i18next';
@@ -17,7 +26,12 @@ import {
 } from '@zextras/carbonio-design-system';
 import { concat, some } from 'lodash';
 import { useDispatch } from 'react-redux';
-import { replaceHistory, useBoardConfig, useRemoveCurrentBoard } from '@zextras/carbonio-shell-ui';
+import {
+	replaceHistory,
+	useBoardConfig,
+	useCurrentRoute,
+	useRemoveCurrentBoard
+} from '@zextras/carbonio-shell-ui';
 import { EditViewContext } from './edit-view-context';
 import { useGetIdentities } from '../edit-utils-hooks/use-get-identities';
 import { useGetAttachItems } from '../edit-utils-hooks/use-get-attachment-items';
@@ -79,9 +93,16 @@ const EditViewHeader: FC<PropType> = ({ setValue, handleSubmit, uploadAttachment
 	const onClick = (): void => {
 		setOpenDD(!openDD);
 	};
+	// const [activeRoute, setActiveRoute] = useState(useCurrentRoute());
+	// useEffect(() => {}, []);
+
+	function GetActiveRoute(): any {
+		const activeRoute = useCurrentRoute();
+		console.log('sssss activeRoute:::', activeRoute);
+		return activeRoute;
+	}
 
 	const toggleOpen = useCallback(() => setOpen((show) => !show), []);
-
 	const sendMailCb = useCallback(() => {
 		setBtnLabel(t('label.sending', 'Sending'));
 		setIsDisabled(true);
@@ -113,6 +134,11 @@ const EditViewHeader: FC<PropType> = ({ setValue, handleSubmit, uploadAttachment
 			setTimeout(() => notCanceled && infoSnackbar(1), 2000);
 			setTimeout(() => {
 				if (notCanceled) {
+					// const activeRoute = useCurrentRoute();
+					// const activeRoute = useCurrentRoute() as AppRoute;
+					console.log('ssssss 55555555551112334455566:::', GetActiveRoute());
+					GetActiveRoute();
+					// pushHistory(`/folder/${folderId}`);
 					folderId ? replaceHistory(`/folder/${folderId}/`) : closeBoard();
 					// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 					// @ts-ignore
