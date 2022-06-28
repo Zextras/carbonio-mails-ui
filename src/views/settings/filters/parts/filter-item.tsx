@@ -14,7 +14,7 @@ import {
 	ItemType
 } from '@zextras/carbonio-design-system';
 import styled from 'styled-components';
-import { indexOf } from 'lodash';
+import { indexOf, noop } from 'lodash';
 
 const ContainerEl = styled(Container)``;
 
@@ -61,16 +61,24 @@ interface Item extends ItemType {
 }
 interface ComponentProps<T extends ItemType> extends ItemComponentProps<T> {
 	selected: boolean;
-	unSelect: () => void;
+	unSelect?: () => void;
 	item: T;
-	listProps: ListPropsType;
+	listProps?: ListPropsType;
 }
 const FilterItem: FC<ComponentProps<Item>> = ({
 	item,
 	selected,
-	unSelect,
-	listProps
-}): ReactElement => {
+	unSelect = noop,
+	listProps = {
+		unSelect: noop,
+		selected: {},
+		isSelecting: false,
+		toggle: noop,
+		list: [],
+		moveDown: noop,
+		moveUp: noop
+	}
+}: ComponentProps<Item>): ReactElement => {
 	const { toggle, list, moveDown, moveUp } = listProps;
 	const _onClick = useCallback(() => {
 		unSelect();

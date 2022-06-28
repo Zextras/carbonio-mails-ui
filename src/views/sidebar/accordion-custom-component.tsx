@@ -51,6 +51,7 @@ import { DataProps } from '../../types/commons';
 
 const FittedRow = styled(Row)`
 	max-width: calc(100% - (2 * ${({ theme }): string => theme.sizes.padding.small}));
+	height: 48px;
 `;
 
 interface DropOverlayContainer {
@@ -519,33 +520,38 @@ export const AccordionCustomComponent: FC<{ item: AccordionFolder }> = ({ item }
 			// open: openIds ? openIds.includes(folder.id) : false,
 			badgeCounter: badgeCount(item.id === FOLDERS.DRAFTS ? item?.folder.n : item?.folder?.u),
 			badgeType: item.id === FOLDERS.DRAFTS ? 'read' : 'unread',
-			to: `/folder/${item.id}`
+			to: `/folder/${item.id}`,
+			textProps: { size: 'small' }
 		}),
 		[item, accountName]
 	);
 
 	const dropdownItems = useFolderActions(item);
 
-	const sharedStatusIcon = useMemo(() => {
-		if (!folder.acl?.grant) {
-			return '';
-		}
-
-		const tooltipText = t('tooltip.folder_sharing_status', {
-			count: folder.acl.grant.length,
-			defaultValue: 'Shared with {{count}} person',
-			defaultValue_plural: 'Shared with {{count}} people'
-		});
-
-		return (
+	const statusIcon = useMemo(() => {
+		const RowWithIcon = (icon: string, color: string, tooltipText: string): JSX.Element => (
 			<Padding left="small">
 				<Tooltip placement="right" label={tooltipText}>
 					<Row>
-						<Icon icon="ArrowCircleRight" customColor="#ffb74d" size="large" />
+						<Icon icon={icon} color={color} size="medium" />
 					</Row>
 				</Tooltip>
 			</Padding>
 		);
+
+		if (folder.acl?.grant) {
+			const tooltipText = t('tooltip.folder_sharing_status', {
+				count: folder.acl.grant.length,
+				defaultValue_one: 'Shared with {{count}} person',
+				defaultValue: 'Shared with {{count}} people'
+			});
+			return RowWithIcon('Shared', 'shared', tooltipText);
+		}
+		if (folder.isLink) {
+			const tooltipText = t('tooltip.folder_linked_status', 'Linked to me');
+			return RowWithIcon('Linked', 'linked', tooltipText);
+		}
+		return '';
 	}, [folder, t]);
 
 	return folder.id === FOLDERS.USER_ROOT || folder.oname === ROOT_NAME ? (
@@ -593,7 +599,7 @@ export const AccordionCustomComponent: FC<{ item: AccordionFolder }> = ({ item }
 							<Row>
 								<Padding left="small" />
 								<Tooltip label={accordionItem.label} placement="right" maxWidth="100%">
-									<AccordionItem item={accordionItem}>{sharedStatusIcon}</AccordionItem>
+									<AccordionItem item={accordionItem}>{statusIcon}</AccordionItem>
 								</Tooltip>
 							</Row>
 						</Dropdown>
