@@ -5,13 +5,13 @@
  */
 import React, {
 	FC,
-	ReactElement,
+	ReactElement, SyntheticEvent,
 	useCallback,
 	useContext,
 	useLayoutEffect,
 	useMemo,
 	useRef,
-	useState
+	useState,
 } from 'react';
 import styled from 'styled-components';
 import {
@@ -72,6 +72,7 @@ type PreviewHeaderProps = {
 		message: MailMessage;
 		onClick: (e: SyntheticEvent) => void;
 		open: boolean;
+		isAlone: true;
 	};
 };
 
