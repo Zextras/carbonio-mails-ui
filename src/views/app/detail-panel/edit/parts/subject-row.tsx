@@ -23,6 +23,8 @@ const SubjectRow: FC = () => {
 				render={({ onChange, value }): ReactElement => (
 					<Container background="gray5">
 						<EmailComposerInput
+							// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+							// @ts-ignore
 							onChange={(ev: React.ChangeEvent<HTMLInputElement>): void => {
 								updateSubjectField({ subject: ev.target.value });
 								onChange(ev.target.value);

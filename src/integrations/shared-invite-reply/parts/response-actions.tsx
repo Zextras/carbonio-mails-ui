@@ -164,7 +164,7 @@ const ResponseActions: FC<ResponseActionsProps> = ({
 				orientation="horizontal"
 				crossAlignment="flex-start"
 				mainAlignment="center"
-				weight="fill"
+				width="fill"
 				height="fit"
 				padding={{ all: 'large' }}
 			>

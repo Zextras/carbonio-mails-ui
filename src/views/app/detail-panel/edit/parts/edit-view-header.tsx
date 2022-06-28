@@ -8,12 +8,13 @@ import { Controller } from 'react-hook-form';
 
 import { useTranslation } from 'react-i18next';
 import {
-	ButtonOld as Button,
+	Button,
 	Dropdown,
 	Padding,
 	Row,
 	Tooltip,
-	SnackbarManagerContext
+	SnackbarManagerContext,
+	Text
 } from '@zextras/carbonio-design-system';
 import { concat, some } from 'lodash';
 import { useDispatch } from 'react-redux';
@@ -39,7 +40,8 @@ const EditViewHeader: FC<PropType> = ({ setValue, handleSubmit, uploadAttachment
 		useContext(EditViewContext);
 	const [open, setOpen] = useState(false);
 	const [openDD, setOpenDD] = useState(false);
-	const [btnLabel, setBtnLabel] = useState(t('label.send', 'Send'));
+	const initialLabel = t('label.send', 'Send');
+	const [btnLabel, setBtnLabel] = useState(initialLabel);
 	const [isDisabled, setIsDisabled] = useState(false);
 	const createSnackbar: CreateSnackbar = useContext(SnackbarManagerContext);
 	const dispatch = useDispatch();
@@ -291,11 +293,8 @@ const EditViewHeader: FC<PropType> = ({ setValue, handleSubmit, uploadAttachment
 					)}
 					{action !== ActionsType.COMPOSE && (
 						<Padding left="large">
-							<Button
-								type="outlined"
-								onClick={handleSubmit(onSave)}
-								label={`${t('label.save', 'Save')}`}
-							/>
+							<Text>!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!</Text>
+							<Button type="outlined" onClick={onSave} label={`${t('label.save', 'Save')}`} />
 						</Padding>
 					)}
 					<Padding left="large">

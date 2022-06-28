@@ -29,7 +29,8 @@ import {
 	Icon,
 	Row,
 	Padding,
-	ModalManagerContext
+	ModalManagerContext,
+	DragObj
 } from '@zextras/carbonio-design-system';
 import { find, startsWith } from 'lodash';
 import { useTranslation } from 'react-i18next';
@@ -52,7 +53,11 @@ const FittedRow = styled(Row)`
 	max-width: calc(100% - (2 * ${({ theme }): string => theme.sizes.padding.small}));
 `;
 
-const DropOverlayContainer = styled(Container)`
+interface DropOverlayContainer {
+	folder: AccordionFolder['folder'];
+}
+
+const DropOverlayContainer = styled(Container)<DropOverlayContainer>`
 	position: absolute;
 	width: calc(248px - ${(props): number => (props.folder.level - 2) * 16}px);
 	height: 100%;
@@ -62,7 +67,7 @@ const DropOverlayContainer = styled(Container)`
 	opacity: 0.4;
 `;
 
-const DropDenyOverlayContainer = styled(Container)`
+const DropDenyOverlayContainer = styled(Container)<DropOverlayContainer>`
 	position: absolute;
 	width: calc(248px - ${(props): number => (props.folder.level - 2) * 16}px);
 	height: 100%;
@@ -326,6 +331,7 @@ type DragEnterAction =
 	  };
 
 type OnDropActionProps = {
+	event: React.DragEvent;
 	type: string;
 	data: DataProps;
 };
@@ -555,8 +561,20 @@ export const AccordionCustomComponent: FC<{ item: AccordionFolder }> = ({ item }
 		<>
 			<Drop
 				acceptType={['message', 'conversation', 'folder']}
-				onDrop={(data: OnDropActionProps): void => onDropAction(data)}
-				onDragEnter={(data: OnDropActionProps): unknown => onDragEnterAction(data)}
+				onDrop={(data: DragObj): void => {
+					onDropAction({
+						type: data.type ?? '',
+						data: data.data,
+						event: data.event
+					} as OnDropActionProps);
+				}}
+				onDragEnter={(data: DragObj): { success: boolean } | undefined =>
+					onDragEnterAction({
+						type: data.type ?? '',
+						data: data.data,
+						event: data.event
+					} as OnDropActionProps)
+				}
 				overlayAcceptComponent={<DropOverlayContainer folder={folder} />}
 				overlayDenyComponent={<DropDenyOverlayContainer folder={folder} />}
 			>

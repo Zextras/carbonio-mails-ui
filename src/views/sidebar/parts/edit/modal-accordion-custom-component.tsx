@@ -49,7 +49,7 @@ const ModalAccordionCustomComponent: FC<{
 		() => min([targetFolder.length * factor + 18, 150]) || 0,
 		[targetFolder.length]
 	);
-	const containerRef = useRef<HTMLDivElement>();
+	const containerRef = useRef<HTMLDivElement>(null);
 	const [availableWidth, setAvailableWidth] = useState(
 		(containerRef?.current?.clientWidth || 405) - targetFolderWidth
 	);
@@ -121,7 +121,7 @@ const ModalAccordionCustomComponent: FC<{
 					<Padding right="medium" />
 					{crumbs?.length > 0 && <Breadcrumbs breadcrumbs={crumbs} />}
 					<Container width="fit" maxWidth={availableWidth - fullPath.length + item.label.length}>
-						<TextWithTooltip overflow="ellipsis">&nbsp;{item.label}</TextWithTooltip>
+						<TextWithTooltip overflow="ellipsis">{`&nbsp;${item.label}`}</TextWithTooltip>
 					</Container>
 				</Row>
 			</Padding>

@@ -6,7 +6,7 @@
 import React, { FC, ReactElement, useCallback, useContext, useMemo } from 'react';
 import { TFunction } from 'i18next';
 import { ButtonOld as Button, Padding, ModalManagerContext } from '@zextras/carbonio-design-system';
-import { find } from 'lodash';
+import { find, noop } from 'lodash';
 import { removeFilter, addFilter } from './actions';
 import {
 	modifyFilterRules,
@@ -196,7 +196,13 @@ const FilterActions: FC<ComponentProps> = ({ compProps }): ReactElement => {
 				onClick={openFilterModifyModal}
 			/>
 			<Padding bottom="medium" />
-			<Button label={t('filters.run', 'RUN')} type="outlined" disabled={disableRun} size="fill" />
+			<Button
+				label={t('filters.run', 'RUN')}
+				type="outlined"
+				disabled={disableRun}
+				size="fill"
+				onClick={noop}
+			/>
 			<Padding bottom="medium" />
 			<Button
 				label={t('filters.delete', 'Delete')}
@@ -204,6 +210,7 @@ const FilterActions: FC<ComponentProps> = ({ compProps }): ReactElement => {
 				color="error"
 				disabled={disableDelete}
 				size="fill"
+				onClick={noop}
 			/>
 			<Padding bottom="medium" />
 			<Button

@@ -18,6 +18,7 @@ import styled from 'styled-components';
 import { filter, omit } from 'lodash';
 import { ZIMBRA_STANDARD_COLORS } from '@zextras/carbonio-shell-ui';
 import { v4 as uuidv4 } from 'uuid';
+import { SearchChipItem } from '../../../../types/commons';
 import { getActionOptions, getMarkAsOptions } from './utils';
 import CustomSelect from './custom-select';
 
@@ -191,7 +192,7 @@ const FilterActionRows: FC<FilterActionRowProps> = ({
 	const showTagOptions = useMemo(() => activeActionOption === 'tagWith', [activeActionOption]);
 
 	const tagChipOnAdd = useCallback(
-		(label: string): any => {
+		(label: string | unknown): SearchChipItem => {
 			const chipBg = filter(tagOptions, { label })[0];
 			return {
 				label: `${label}`,
@@ -294,7 +295,7 @@ const FilterActionRows: FC<FilterActionRowProps> = ({
 							defaultValue={[]}
 							options={tagOptions}
 							value={tag}
-							singleSelction
+							singleSelection
 							onChange={onTagChange}
 							onAdd={tagChipOnAdd}
 							disableOptions={false}

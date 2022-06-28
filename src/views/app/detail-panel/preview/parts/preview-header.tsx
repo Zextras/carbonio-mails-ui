@@ -3,54 +3,45 @@
  *
  * SPDX-License-Identifier: AGPL-3.0-only
  */
-import React, {
-	FC,
-	ReactElement,
-	useCallback,
-	useContext,
-	useLayoutEffect,
-	useMemo,
-	useRef,
-	useState
-} from 'react';
-import styled from 'styled-components';
 import {
-	Container,
-	Text,
 	Avatar,
+	Chip,
+	Container,
+	ContainerProps,
+	Dropdown,
 	Icon,
 	Padding,
 	Row,
+	Text,
 	ThemeContext,
 	Tooltip,
-	Chip,
-	Dropdown
 } from '@zextras/carbonio-design-system';
+import { runSearch, useTags, useUserAccounts, ZIMBRA_STANDARD_COLORS } from '@zextras/carbonio-shell-ui';
 import { capitalize, every, find, includes, isEmpty, map, reduce } from 'lodash';
+import React, { FC, ReactElement, useCallback, useContext, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-	useTags,
-	useUserAccounts,
-	ZIMBRA_STANDARD_COLORS,
-	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-	// @ts-ignore
-	runSearch
-} from '@zextras/carbonio-shell-ui';
 import { useParams } from 'react-router-dom';
-import OnBehalfOfDisplayer from './on-behalf-of-displayer';
-import MailMsgPreviewActions from '../../../../../ui-actions/mail-message-preview-actions';
+import styled from 'styled-components';
+import { getTimeLabel, participantToString } from '../../../../../commons/utils';
 import { useMessageActions } from '../../../../../hooks/use-message-actions';
 import { retrieveAttachmentsType } from '../../../../../store/editor-slice-utils';
-import { getTimeLabel, participantToString } from '../../../../../commons/utils';
-import MessageContactsList from './message-contact-list';
 import { MailMessage } from '../../../../../types/mail-message';
+import { ParticipantRole } from '../../../../../types/participant';
+import MailMsgPreviewActions from '../../../../../ui-actions/mail-message-preview-actions';
 import { useTagExist } from '../../../../../ui-actions/tag-actions';
+import MessageContactsList from './message-contact-list';
+import OnBehalfOfDisplayer from './on-behalf-of-displayer';
 
-const HoverContainer = styled(Container)`
+interface HoverContainerProps extends ContainerProps {
+	isExpanded: boolean;
+}
+
+const HoverContainer = styled(Container)<HoverContainerProps>`
 	cursor: pointer;
 	border-radius: ${({ isExpanded }): string => (isExpanded ? '4px 4px 0 0' : '4px')};
 	&:hover {
-		background: ${({ theme, background }): string => theme.palette[background].hover};
+		background: ${({ theme, background = 'currentColor' }): string =>
+			theme.palette[background].hover};
 	}
 `;
 
@@ -75,7 +66,7 @@ const fallbackContact = { address: '', displayName: '', fullName: '' };
 const PreviewHeader: FC<PreviewHeaderProps> = ({ compProps }): ReactElement => {
 	const { message, onClick, open } = compProps;
 
-	const textRef = useRef<HTMLInputElement>();
+	const textRef = useRef<HTMLInputElement>(null);
 	const [t] = useTranslation();
 	const accounts = useUserAccounts();
 
@@ -84,7 +75,7 @@ const PreviewHeader: FC<PreviewHeaderProps> = ({ compProps }): ReactElement => {
 	const mainContact = find(message.participants, ['type', 'f']) || fallbackContact;
 	const _onClick = useCallback((e) => !e.isDefaultPrevented() && onClick(e), [onClick]);
 	const attachments = retrieveAttachmentsType(message, 'attachment');
-	const senderContact = find(message.participants, ['type', 's']);
+	let senderContact = find(message.participants, ['type', 's']);
 	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 	// @ts-ignore
 	const { folderId } = useParams();
@@ -200,7 +191,7 @@ const PreviewHeader: FC<PreviewHeaderProps> = ({ compProps }): ReactElement => {
 			isExpanded={open}
 			onClick={_onClick}
 		>
-			<Container height="fit" width="100%" isExpanded={open}>
+			<Container height="fit" width="100%">
 				<Container orientation="horizontal">
 					<Container
 						orientation="vertical"
@@ -238,7 +229,7 @@ const PreviewHeader: FC<PreviewHeaderProps> = ({ compProps }): ReactElement => {
 											data-testid="SenderText"
 											size={message.read ? 'small' : 'medium'}
 											color={message.read ? 'text' : 'primary'}
-											weight={message.read ? 'normal' : 'bold'}
+											weight={message.read ? 'regular' : 'bold'}
 										>
 											{capitalize(participantToString(mainContact, t, accounts))}
 										</Text>
@@ -336,7 +327,7 @@ const PreviewHeader: FC<PreviewHeaderProps> = ({ compProps }): ReactElement => {
 				mainAlignment="flex-start"
 			>
 				{!open && (
-					<Row takeAvailabelSpace padding={{ bottom: 'small' }}>
+					<Row takeAvailableSpace mainAlignment="flex-start" padding={{ bottom: 'small' }}>
 						<Text color="secondary" size="small">
 							{message.fragment}
 						</Text>

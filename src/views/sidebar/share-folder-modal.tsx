@@ -13,7 +13,8 @@ import {
 	Row,
 	ChipInput,
 	Padding,
-	SnackbarManagerContext
+	SnackbarManagerContext,
+	SelectItem
 } from '@zextras/carbonio-design-system';
 import { useIntegratedComponent, useUserAccounts } from '@zextras/carbonio-shell-ui';
 import { map, replace, split } from 'lodash';
@@ -192,7 +193,7 @@ const ShareFolderModal: FC<ShareFolderModalProps> = ({
 					</Container>
 				) : (
 					<Container height="fit" padding={{ vertical: 'small' }}>
-						{integrationAvailable ? (
+						{!integrationAvailable ? (
 							<ContactInput
 								// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 								// @ts-ignore
@@ -205,19 +206,10 @@ const ShareFolderModal: FC<ShareFolderModalProps> = ({
 							/>
 						) : (
 							<ChipInput
-								backgroundColor="gray5"
 								placeholder={t('share.recipients_address', 'Recipients’ e-mail addresses')}
-								onChange={(ev: ChangeEvent<HTMLInputElement>): void => {
-									// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-									// @ts-ignore
-									setContacts(map(ev, (contact) => ({ email: contact.address })));
+								onChange={(items): void => {
+									setContacts(map(items, (contact) => ({ email: contact.label })));
 								}}
-								valueKey="address"
-								getChipLabel={(
-									participant: Partial<{ fullName: string; name: string; address: string }>
-								): string | undefined =>
-									participant.fullName ?? participant.name ?? participant.address
-								}
 							/>
 						)}
 					</Container>
@@ -229,10 +221,12 @@ const ShareFolderModal: FC<ShareFolderModalProps> = ({
 						background="gray5"
 						label={t('label.role', 'Role')}
 						onChange={onShareRoleChange}
-						defaultSelection={{
-							value: editMode ? activeGrant?.perm : 'r',
-							label: findLabel(shareCalendarRoleOptions, editMode ? activeGrant?.perm : 'r')
-						}}
+						defaultSelection={
+							{
+								value: editMode ? activeGrant?.perm : 'r',
+								label: findLabel(shareCalendarRoleOptions, editMode ? activeGrant?.perm : 'r')
+							} as SelectItem
+						}
 					/>
 				</Container>
 				<Container

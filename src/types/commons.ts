@@ -3,26 +3,28 @@
  *
  * SPDX-License-Identifier: AGPL-3.0-only
  */
+import { ButtonOldProps, ChipItem, ContainerProps } from '@zextras/carbonio-design-system';
 import { AccordionFolder } from '@zextras/carbonio-shell-ui';
+import { SyntheticEvent } from 'react';
 import { TFunction } from 'react-i18next';
 
 export type ModalFooterProps = {
-	mainAlignment?: string | undefined;
-	crossAlignment?: string | undefined;
+	mainAlignment?: ContainerProps['mainAlignment'];
+	crossAlignment?: ContainerProps['crossAlignment'];
 	padding?: Record<string, string> | undefined;
-	onConfirm: (a: string) => void;
+	onConfirm: (e?: SyntheticEvent<Element, Event> | KeyboardEvent) => void;
 	secondaryAction?: () => void | undefined;
 	label: string;
 	secondaryLabel?: string | undefined;
 	disabled?: boolean | undefined;
 	secondaryDisabled?: boolean | undefined;
-	background?: string | undefined;
-	secondarybackground?: string | undefined;
+	background?: ContainerProps['background'] | undefined;
+	secondarybackground?: ContainerProps['background'] | undefined;
 	color?: string | undefined;
 	secondaryColor?: string | undefined;
-	size?: string | undefined;
-	primaryBtnType?: string | undefined;
-	secondaryBtnType?: string | undefined;
+	size?: ButtonOldProps['size'] | undefined;
+	primaryBtnType?: ButtonOldProps['type'] | undefined;
+	secondaryBtnType?: ButtonOldProps['type'] | undefined;
 	showDivider?: boolean;
 	tooltip?: string;
 	secondaryTooltip?: string;
@@ -99,4 +101,10 @@ export type DataProps = {
 	urgent: false;
 	parentFolderId: string;
 	selectedIDs: Array<string>;
+};
+
+export type SearchChipItem = ChipItem & {
+	isGeneric?: boolean;
+	isQueryFilter?: boolean;
+	hasError?: boolean;
 };

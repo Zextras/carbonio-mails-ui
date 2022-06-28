@@ -4,7 +4,15 @@
  * SPDX-License-Identifier: AGPL-3.0-only
  */
 import React, { FC, ReactElement, useCallback, useMemo, useState } from 'react';
-import { Container, Text, Row, Icon, Padding } from '@zextras/carbonio-design-system';
+import {
+	Container,
+	Text,
+	Row,
+	Icon,
+	Padding,
+	ItemComponentProps,
+	ItemType
+} from '@zextras/carbonio-design-system';
 import styled from 'styled-components';
 import { indexOf } from 'lodash';
 
@@ -44,20 +52,25 @@ export type ListPropsType = {
 	unSelect: () => void;
 };
 
-type Item = {
+interface Item extends ItemType {
 	active: boolean;
 	filterActions: Array<any>;
 	filterTests: Array<any>;
 	id: string;
 	name: string;
-};
-type ComponentProps = {
+}
+interface ComponentProps<T extends ItemType> extends ItemComponentProps<T> {
 	selected: boolean;
 	unSelect: () => void;
-	item: Item;
+	item: T;
 	listProps: ListPropsType;
-};
-const FilterItem: FC<ComponentProps> = ({ item, selected, unSelect, listProps }): ReactElement => {
+}
+const FilterItem: FC<ComponentProps<Item>> = ({
+	item,
+	selected,
+	unSelect,
+	listProps
+}): ReactElement => {
 	const { toggle, list, moveDown, moveUp } = listProps;
 	const _onClick = useCallback(() => {
 		unSelect();

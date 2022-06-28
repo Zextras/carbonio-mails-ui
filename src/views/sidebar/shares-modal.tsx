@@ -13,7 +13,9 @@ import {
 	Text,
 	Input,
 	Icon,
-	Row
+	Row,
+	AccordionItemType,
+	AccordionDivider
 } from '@zextras/carbonio-design-system';
 import {
 	groupBy,
@@ -113,7 +115,7 @@ type SharedObject = {
 	folderId: string;
 	setLinks: (links: Array<SharedObject>) => void;
 	links: Array<SharedObject>;
-	CustomComponent: ReactElement;
+	CustomComponent: AccordionItemType['CustomComponent'];
 };
 
 export const SharesModal: FC<ShareModalProps> = ({ folders, onClose }) => {
@@ -140,22 +142,33 @@ export const SharesModal: FC<ShareModalProps> = ({ folders, onClose }) => {
 		links,
 		CustomComponent: CustomItem
 	}));
+	console.log('*** shared', shared);
 	const filteredFolders = useMemo(() => groupBy(shared, 'ownerName'), [shared]);
+	console.log('*** filtered', filteredFolders);
 	const nestedData = useMemo(
 		() =>
-			map(values(!isEmpty(data) ? data : filteredFolders), (v: Array<SharedObject>) => ({
-				id: v[0].ownerId,
-				label: t('label.shares_items', {
-					value: v[0].ownerName,
-					defaultValue: "{{value}}'s shared folders"
-				}),
-				open: true,
-				items: v,
-				divider: !isEmpty(filteredFolders) || !isEmpty(data),
-				background: undefined
-			})),
+			map(
+				values(!isEmpty(data) ? data : filteredFolders),
+				(v: Array<SharedObject>): AccordionItemType | AccordionDivider =>
+					!isEmpty(filteredFolders) || !isEmpty(data)
+						? {
+								id: v[0].ownerId,
+								label: t('label.shares_items', {
+									value: v[0].ownerName,
+									defaultValue: "{{value}}'s shared folders"
+								}),
+								open: true,
+								items: v,
+								background: undefined
+						  }
+						: {
+								divider: true
+						  }
+			),
 		[data, filteredFolders, t]
 	);
+
+	console.log('*** nestedData', nestedData);
 
 	const filterResults = useCallback(
 		(ev) =>
