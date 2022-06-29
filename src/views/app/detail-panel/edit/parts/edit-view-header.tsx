@@ -293,7 +293,6 @@ const EditViewHeader: FC<PropType> = ({ setValue, handleSubmit, uploadAttachment
 					)}
 					{action !== ActionsType.COMPOSE && (
 						<Padding left="large">
-							<Text>!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!</Text>
 							<Button type="outlined" onClick={onSave} label={`${t('label.save', 'Save')}`} />
 						</Padding>
 					)}
