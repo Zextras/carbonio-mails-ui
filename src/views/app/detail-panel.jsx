@@ -27,9 +27,7 @@ const DetailPanel = () => {
 				<Route exact path={`${path}/folder/:folderId/message/:messageId`}>
 					<MessagePreviewPanel />
 				</Route>
-				<Route exact path={`${path}/folder/:folderId/edit/:editId`}>
-					<MailEditPanel />
-				</Route>
+				<Route exact path={`${path}/folder/:folderId/edit/:editId`} component={MailEditPanel} />
 			</Switch>
 		</Container>
 	);

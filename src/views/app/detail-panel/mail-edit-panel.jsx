@@ -51,7 +51,7 @@ const MailEditHeader = ({ folderId, header, toggleAppBoard, setToggleAppBoard })
 	);
 };
 
-export default function MailEditPanel() {
+export default function MailEditPanel({ location }) {
 	const [header, setHeader] = useState(undefined);
 	const [toggleAppBoard, setToggleAppBoard] = useState(false);
 	const { folderId, editId } = useParams();
@@ -77,6 +77,7 @@ export default function MailEditPanel() {
 						setHeader={setHeader}
 						panel
 						toggleAppBoard={toggleAppBoard}
+						location={location}
 					/>
 				</Container>
 			</Container>

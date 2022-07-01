@@ -52,7 +52,8 @@ const generateId = () => {
 	return `new-${counter}`;
 };
 
-export default function EditView({ mailId, folderId, setHeader, toggleAppBoard }) {
+export default function EditView({ mailId, folderId, setHeader, toggleAppBoard, location }) {
+	console.log('vv props:', location);
 	const settings = useUserSettings();
 	const boardContext = useBoardConfig();
 	const [editor, setEditor] = useState();
@@ -322,7 +323,8 @@ export default function EditView({ mailId, folderId, setHeader, toggleAppBoard }
 				updateSubjectField,
 				action,
 				folderId,
-				saveDraftCb
+				saveDraftCb,
+				location
 			}}
 		>
 			<Catcher>
@@ -346,6 +348,7 @@ export default function EditView({ mailId, folderId, setHeader, toggleAppBoard }
 								setValue={setValue}
 								handleSubmit={handleSubmit}
 								uploadAttachmentsCb={uploadAttachmentsCb}
+								location={location}
 							/>
 							{isSendingToYourself && <WarningBanner />}
 

@@ -27,10 +27,13 @@ import {
 import { concat, some } from 'lodash';
 import { useDispatch } from 'react-redux';
 import {
+	pushHistory,
 	replaceHistory,
 	useBoardConfig,
 	useCurrentRoute,
-	useRemoveCurrentBoard
+	useRemoveCurrentBoard,
+	useTags,
+	useUserSettings
 } from '@zextras/carbonio-shell-ui';
 import { EditViewContext } from './edit-view-context';
 import { useGetIdentities } from '../edit-utils-hooks/use-get-identities';
@@ -47,7 +50,12 @@ type PropType = {
 	handleSubmit: (arg: () => void) => void;
 	uploadAttachmentsCb: () => void;
 };
-const EditViewHeader: FC<PropType> = ({ setValue, handleSubmit, uploadAttachmentsCb }) => {
+const EditViewHeader: FC<PropType> = ({
+	setValue,
+	handleSubmit,
+	uploadAttachmentsCb
+	//	location
+}) => {
 	const [t] = useTranslation();
 	const { control, editor, updateEditorCb, editorId, saveDraftCb, folderId, action } =
 		useContext(EditViewContext);
@@ -80,7 +88,16 @@ const EditViewHeader: FC<PropType> = ({ setValue, handleSubmit, uploadAttachment
 			inputRef.current.click();
 		}
 	}, []);
+	const [activeRoute, setActiveRoute] = useState(useCurrentRoute());
 
+	const tempRoute = useCurrentRoute();
+
+	useEffect(() => {
+		if (tempRoute?.route !== 'mails') setActiveRoute(tempRoute);
+		return () => console.log('vvv:', { tempRoute });
+	}, [tempRoute]);
+
+	console.log('vvv: ', { activeRoute });
 	const attachmentsItems = useGetAttachItems({
 		onFileClick,
 		setOpenDD,
@@ -96,11 +113,11 @@ const EditViewHeader: FC<PropType> = ({ setValue, handleSubmit, uploadAttachment
 	// const [activeRoute, setActiveRoute] = useState(useCurrentRoute());
 	// useEffect(() => {}, []);
 
-	function GetActiveRoute(): any {
-		const activeRoute = useCurrentRoute();
-		console.log('sssss activeRoute:::', activeRoute);
-		return activeRoute;
-	}
+	// function GetActiveRoute(): any {
+	// 	const activeRoute = useCurrentRoute();
+	// 	console.log('sssss activeRoute:::', activeRoute);
+	// 	return activeRoute;
+	// }
 
 	const toggleOpen = useCallback(() => setOpen((show) => !show), []);
 	const sendMailCb = useCallback(() => {
@@ -134,15 +151,17 @@ const EditViewHeader: FC<PropType> = ({ setValue, handleSubmit, uploadAttachment
 			setTimeout(() => notCanceled && infoSnackbar(1), 2000);
 			setTimeout(() => {
 				if (notCanceled) {
+					folderId ? pushHistory(`/folder/${folderId}/`) : closeBoard();
 					// const activeRoute = useCurrentRoute();
 					// const activeRoute = useCurrentRoute() as AppRoute;
-					console.log('ssssss 55555555551112334455566:::', GetActiveRoute());
-					GetActiveRoute();
+					// console.log('ssssss 55555555551112334455566:::', GetActiveRoute());
+					// GetActiveRoute();
 					// pushHistory(`/folder/${folderId}`);
-					folderId ? replaceHistory(`/folder/${folderId}/`) : closeBoard();
+					// folderId ? replaceHistory(`/folder/${folderId}/`) : closeBoard();
 					// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 					// @ts-ignore
 					dispatch(sendMsg({ editorId })).then((res) => {
+						console.log('vvv vvv:', { activeRoute });
 						if (res.type.includes('fulfilled')) {
 							createSnackbar({
 								key: `mail-${editorId}`,
@@ -167,7 +186,18 @@ const EditViewHeader: FC<PropType> = ({ setValue, handleSubmit, uploadAttachment
 				}
 			}, 3000);
 		}
-	}, [t, action, boardContext, editor, createSnackbar, folderId, closeBoard, dispatch, editorId]);
+	}, [
+		t,
+		action,
+		boardContext,
+		editor,
+		createSnackbar,
+		folderId,
+		closeBoard,
+		dispatch,
+		editorId,
+		activeRoute
+	]);
 
 	const onSave = useCallback(() => {
 		saveDraftCb(editor);
