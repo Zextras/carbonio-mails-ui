@@ -5,13 +5,14 @@
  */
 import React, {
 	FC,
-	ReactElement, SyntheticEvent,
+	ReactElement,
+	SyntheticEvent,
 	useCallback,
 	useContext,
 	useLayoutEffect,
 	useMemo,
 	useRef,
-	useState,
+	useState
 } from 'react';
 import styled from 'styled-components';
 import {
