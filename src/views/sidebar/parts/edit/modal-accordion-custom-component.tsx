@@ -6,15 +6,15 @@
 import React, { FC, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Padding, Row, Icon, Container, TextWithTooltip } from '@zextras/carbonio-design-system';
 
-import { AccordionFolder } from '@zextras/carbonio-shell-ui';
 import { useTranslation } from 'react-i18next';
 import { indexOf, lastIndexOf, min } from 'lodash';
 import { getFolderIconColor, getFolderIconName, getSystemFolderTranslatedName } from '../../utils';
 import { Crumb } from '../../../../types/commons';
 import { Breadcrumbs } from './breadcrumbs';
 
+// TODO remove the "any" type after the Accordion refactor in the DS
 const ModalAccordionCustomComponent: FC<{
-	item: AccordionFolder;
+	item: any;
 }> = (folder) => {
 	const { item } = folder;
 	const [t] = useTranslation();
@@ -120,7 +120,10 @@ const ModalAccordionCustomComponent: FC<{
 					<Icon color={iconColor} icon={iconName || 'FolderOutline'} size="large" />
 					<Padding right="medium" />
 					{crumbs?.length > 0 && <Breadcrumbs breadcrumbs={crumbs} />}
-					<Container width="fit" maxWidth={availableWidth - fullPath.length + item.label.length}>
+					<Container
+						width="fit"
+						maxWidth={availableWidth - fullPath.length + (item?.label?.length ?? 0)}
+					>
 						<TextWithTooltip overflow="ellipsis">{`&nbsp;${item.label}`}</TextWithTooltip>
 					</Container>
 				</Row>

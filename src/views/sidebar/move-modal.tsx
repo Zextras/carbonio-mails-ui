@@ -71,9 +71,10 @@ export const MoveModal: FC<ModalProps> = ({ folder, onClose }) => {
 		return (): void => window.removeEventListener('resize', calculateAvailableWidth);
 	}, [accordionRef]);
 
+	// TODO remove the "any" type after the Accordion refactor in the DS
 	const flattenFolders = useCallback(
-		(arr: Array<AccordionFolder>): Array<AccordionFolder> => {
-			const result: Array<AccordionFolder> = [];
+		(arr: Array<any>): Array<any> => {
+			const result: Array<any> = [];
 			arr.forEach((item) => {
 				const { items } = item;
 				if (

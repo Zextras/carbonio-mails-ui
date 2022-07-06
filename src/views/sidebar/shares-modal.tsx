@@ -3,65 +3,50 @@
  *
  * SPDX-License-Identifier: AGPL-3.0-only
  */
-import React, { FC, ReactElement, useCallback, useMemo, useState } from 'react';
+import { Dictionary } from '@reduxjs/toolkit';
 import {
-	Container,
 	Accordion,
+	AccordionDivider,
 	AccordionItem,
-	Checkbox,
-	Padding,
-	Text,
-	Input,
-	Icon,
-	Row,
 	AccordionItemType,
-	AccordionDivider
+	Checkbox,
+	Container,
+	Icon,
+	Input,
+	Padding,
+	Row,
+	Text
 } from '@zextras/carbonio-design-system';
 import {
-	groupBy,
-	map,
-	split,
-	last,
-	values,
-	uniqWith,
-	isEqual,
 	filter,
+	groupBy,
+	isEmpty,
+	isEqual,
+	last,
+	map,
 	pickBy,
+	split,
 	startsWith,
 	toLower,
-	isEmpty
+	uniqWith,
+	values
 } from 'lodash';
-import styled from 'styled-components';
+import React, { FC, ReactElement, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
-import { Folder, Folders } from '@zextras/carbonio-shell-ui';
-import { ModalHeader } from './commons/modal-header';
-import ModalFooter from './commons/modal-footer';
+import styled from 'styled-components';
 import { createMountpoint } from '../../store/actions/create-mountpoint';
 import { ResFolder } from '../../types/commons';
-
-type CustomItem = {
-	item: {
-		id: string;
-		label: string;
-		open: boolean;
-		items: Folders;
-		ownerName: string;
-		ownerId: string;
-		checked: boolean;
-		folderId: string;
-		setLinks: (arg: any) => void;
-		links: Folder[];
-		CustomComponent: ReactElement;
-	};
-};
+import ModalFooter from './commons/modal-footer';
+import { ModalHeader } from './commons/modal-header';
 
 const ContainerEl = styled(Container)`
 	overflow-y: auto;
 	display: block;
 `;
 
-const CustomItem: FC<CustomItem> = ({ item: folder }) => {
+// TODO remove the "any" after the Accordion component refactor in the DS
+const CustomItem: FC<any> = ({ item: folder }) => {
 	const [checked, setChecked] = useState(false);
 	const [t] = useTranslation();
 
@@ -118,8 +103,10 @@ type SharedObject = {
 	CustomComponent: AccordionItemType['CustomComponent'];
 };
 
+type GroupedShare = Dictionary<SharedObject[]>;
+
 export const SharesModal: FC<ShareModalProps> = ({ folders, onClose }) => {
-	const [links, setLinks] = useState([]);
+	const [links, setLinks] = useState([] as SharedObject[]);
 	const [data, setData] = useState({});
 	const dispatch = useDispatch();
 	const [t] = useTranslation();
@@ -129,46 +116,46 @@ export const SharesModal: FC<ShareModalProps> = ({ folders, onClose }) => {
 		onClose();
 	}, [dispatch, links, onClose]);
 
-	const shared = map(folders, (c) => ({
-		id: `${c.ownerName} - ${c.folderId} - ${c.granteeType} - ${c.granteeName}`,
-		label: last(split(c.folderPath, '/')),
-		open: true,
-		items: [],
-		ownerName: c.ownerName,
-		ownerId: c.ownerId,
-		checked: false,
-		folderId: c.folderId,
-		setLinks,
-		links,
-		CustomComponent: CustomItem
-	}));
-	console.log('*** shared', shared);
-	const filteredFolders = useMemo(() => groupBy(shared, 'ownerName'), [shared]);
-	console.log('*** filtered', filteredFolders);
-	const nestedData = useMemo(
-		() =>
-			map(
-				values(!isEmpty(data) ? data : filteredFolders),
-				(v: Array<SharedObject>): AccordionItemType | AccordionDivider =>
-					!isEmpty(filteredFolders) || !isEmpty(data)
-						? {
-								id: v[0].ownerId,
-								label: t('label.shares_items', {
-									value: v[0].ownerName,
-									defaultValue: "{{value}}'s shared folders"
-								}),
-								open: true,
-								items: v,
-								background: undefined
-						  }
-						: {
-								divider: true
-						  }
-			),
-		[data, filteredFolders, t]
+	const shared = map(
+		folders,
+		(c) =>
+			({
+				id: `${c.ownerName} - ${c.folderId} - ${c.granteeType} - ${c.granteeName}`,
+				label: last(split(c.folderPath, '/')),
+				open: true,
+				items: [],
+				ownerName: c.ownerName,
+				ownerId: c.ownerId,
+				checked: false,
+				folderId: `${c.folderId}`,
+				setLinks,
+				links,
+				CustomComponent: CustomItem
+			} as SharedObject)
 	);
 
-	console.log('*** nestedData', nestedData);
+	const filteredFolders = useMemo<GroupedShare>(() => groupBy(shared, 'ownerName'), [shared]);
+
+	const nestedData = useMemo(() => {
+		const shares = (isEmpty(data) ? filteredFolders : data) as GroupedShare;
+		const sharesDets = values(shares);
+		return sharesDets.map((v): AccordionItemType | AccordionDivider =>
+			v
+				? {
+						id: v[0].ownerId,
+						label: t('label.shares_items', {
+							value: v[0].ownerName,
+							defaultValue: "{{value}}'s shared folders"
+						}),
+						open: true,
+						items: v,
+						background: undefined
+				  }
+				: {
+						divider: true
+				  }
+		);
+	}, [data, filteredFolders, t]);
 
 	const filterResults = useCallback(
 		(ev) =>

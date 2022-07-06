@@ -6,6 +6,7 @@
 
 import { ComponentType } from 'react';
 
+// TODO remove the "any" type after the Accordion refactor in the DS
 export type ItemType = {
 	CustomComponent: ComponentType<any>;
 	active: boolean;
@@ -16,6 +17,7 @@ export type ItemType = {
 	name: string;
 	open: boolean;
 	actions?: Array<unknown>;
+	item: any;
 };
 
 export type TagsAccordionItems = {

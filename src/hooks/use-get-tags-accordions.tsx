@@ -69,7 +69,7 @@ const CustomComp: FC<ItemProps> = (props) => {
 	);
 };
 
-export const TagLabel: FC<ItemType> = (props) => {
+export const TagLabel: FC<ItemType & { color: string }> = (props) => {
 	const createModal = useContext(ModalManagerContext) as () => () => void;
 	const [t] = useTranslation();
 	return (
@@ -108,6 +108,7 @@ const useGetTagsAccordion = (): TagsAccordionItems => {
 						label: v.name,
 						name: v.name,
 						open: false,
+						item: v,
 						CustomComponent: CustomComp
 					};
 					acc.push(item);

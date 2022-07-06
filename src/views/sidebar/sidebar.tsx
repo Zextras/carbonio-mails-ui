@@ -6,10 +6,7 @@
 import React, { useRef, FC, useContext, useMemo, useCallback } from 'react';
 import {
 	AccordionFolder,
-	Folder,
 	useFoldersAccordionByView,
-	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-	// @ts-ignore
 	useLocalStorage
 } from '@zextras/carbonio-shell-ui';
 import {
@@ -30,8 +27,9 @@ import { SharesModal } from './shares-modal';
 import { ResFolder } from '../../types/commons';
 import useGetTagsAccordion from '../../hooks/use-get-tags-accordions';
 
+// TODO remove the "any" type after the Accordion refactor in the DS
 type SidebarComponentProps = {
-	accordions: Array<AccordionFolder>;
+	accordions: Array<any>;
 	openIds: Array<string>;
 };
 
@@ -144,7 +142,7 @@ const Sidebar: FC<SidebarProps> = ({ expanded }) => {
 					</Switch>
 				</>
 			) : (
-				accordions[0].items.map((folder, index: number) => (
+				accordions[0]?.items?.map((folder, index: number) => (
 					<CollapsedSideBarItems key={index} folder={folder} />
 				))
 			)}

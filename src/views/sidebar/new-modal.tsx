@@ -23,7 +23,7 @@ import {
 	SnackbarManagerContext
 } from '@zextras/carbonio-design-system';
 
-import { cloneDeep, filter, includes, startsWith } from 'lodash';
+import { filter, includes, startsWith } from 'lodash';
 import { nanoid } from '@reduxjs/toolkit';
 import {
 	AccordionFolder,
@@ -83,9 +83,10 @@ export const NewModal: FC<ModalProps> = ({ folder, onClose }) => {
 		[t, inputValue]
 	);
 
+	// TODO remove the "any" type after the Accordion refactor in the DS
 	const flattenFolders = useCallback(
-		(arr: Array<AccordionFolder>): Array<AccordionFolder> => {
-			const result: Array<AccordionFolder> = [];
+		(arr: Array<any>): Array<any> => {
+			const result: Array<any> = [];
 			arr.forEach((item) => {
 				const { items } = item;
 				if (
@@ -113,7 +114,6 @@ export const NewModal: FC<ModalProps> = ({ folder, onClose }) => {
 				if (items) result.push(...flattenFolders(items));
 			});
 
-			console.log('**** result', result);
 			return result;
 		},
 		[accordionWidth, accountName, folderId, folderDestination]
@@ -156,7 +156,7 @@ export const NewModal: FC<ModalProps> = ({ folder, onClose }) => {
 	const filteredFromUserInput = useMemo(
 		() =>
 			filter(flattenedFolders, (item) =>
-				startsWith(item.label.toLowerCase(), searchString.toLowerCase())
+				startsWith(item.label?.toLowerCase(), searchString.toLowerCase())
 			),
 		[flattenedFolders, searchString]
 	);

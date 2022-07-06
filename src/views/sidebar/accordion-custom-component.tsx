@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: AGPL-3.0-only
  */
-import React, { FC, useCallback, useContext, useMemo, useState } from 'react';
+import React, { FC, SyntheticEvent, useCallback, useContext, useMemo, useState } from 'react';
 import {
 	AppLink,
 	FOLDERS,
@@ -82,7 +82,7 @@ type FolderActionsProps = {
 	id: string;
 	icon: string;
 	label: string;
-	click: (e: MouseEvent) => void;
+	click: (e: SyntheticEvent<HTMLElement, Event> | KeyboardEvent) => void;
 	disabled?: boolean;
 };
 
@@ -103,7 +103,7 @@ const useFolderActions = (folder: AccordionFolder): Array<FolderActionsProps> =>
 				id: FolderActionsType.NEW,
 				icon: 'FolderAddOutline',
 				label: t('label.new_folder', 'New Folder'),
-				click: (e: MouseEvent): void => {
+				click: (e: SyntheticEvent<HTMLElement, Event> | KeyboardEvent): void => {
 					if (e) {
 						e.stopPropagation();
 					}
@@ -126,7 +126,7 @@ const useFolderActions = (folder: AccordionFolder): Array<FolderActionsProps> =>
 				label: startsWith(folder.folder?.absFolderPath, '/Trash')
 					? t('label.restore', 'Restore')
 					: t('label.move', 'Move'),
-				click: (e: MouseEvent): void => {
+				click: (e: SyntheticEvent<HTMLElement, Event> | KeyboardEvent): void => {
 					if (e) {
 						e.stopPropagation();
 					}
@@ -151,7 +151,7 @@ const useFolderActions = (folder: AccordionFolder): Array<FolderActionsProps> =>
 						? t('folder_panel.action.empty.trash', 'Empty Trash')
 						: t('folder_panel.action.wipe.folder_panel', 'Wipe Folder'),
 				disabled: folder.folder?.n === 0 && folder.folder?.children?.length === 0,
-				click: (e: MouseEvent): void => {
+				click: (e: SyntheticEvent<HTMLElement, Event> | KeyboardEvent): void => {
 					if (e) {
 						e.stopPropagation();
 					}
@@ -173,7 +173,7 @@ const useFolderActions = (folder: AccordionFolder): Array<FolderActionsProps> =>
 				label: folder?.folder?.isLink
 					? t('folder_panel.action.edit_properties', 'Edit Properties')
 					: t('label.edit', 'Edit'),
-				click: (e: MouseEvent): void => {
+				click: (e: SyntheticEvent<HTMLElement, Event> | KeyboardEvent): void => {
 					if (e) {
 						e.stopPropagation();
 					}
@@ -196,7 +196,7 @@ const useFolderActions = (folder: AccordionFolder): Array<FolderActionsProps> =>
 				label: startsWith(folder.folder?.absFolderPath, '/Trash')
 					? t('label.delete_permanently', 'Delete Permanently')
 					: t('label.delete', 'Delete'),
-				click: (e: MouseEvent): void => {
+				click: (e: SyntheticEvent<HTMLElement, Event> | KeyboardEvent): void => {
 					if (e) {
 						e.stopPropagation();
 					}
@@ -216,7 +216,7 @@ const useFolderActions = (folder: AccordionFolder): Array<FolderActionsProps> =>
 				id: FolderActionsType.SHARE,
 				icon: 'ShareOutline',
 				label: t('action.share_folder', 'Share folder'),
-				click: (e: MouseEvent): void => {
+				click: (e: SyntheticEvent<HTMLElement, Event> | KeyboardEvent): void => {
 					if (e) {
 						e.stopPropagation();
 					}
@@ -241,7 +241,7 @@ const useFolderActions = (folder: AccordionFolder): Array<FolderActionsProps> =>
 				id: FolderActionsType.REMOVE_FROM_LIST,
 				icon: 'CloseOutline',
 				label: t('label.remove_from_this_list', 'Remove from this list'),
-				click: (e): void => {
+				click: (e: SyntheticEvent<HTMLElement, Event> | KeyboardEvent): void => {
 					if (e) {
 						e.stopPropagation();
 						dispatch(folderAction({ folder: folder.folder, op: 'delete' }));
@@ -252,7 +252,7 @@ const useFolderActions = (folder: AccordionFolder): Array<FolderActionsProps> =>
 				id: FolderActionsType.SHARES_INFO,
 				icon: 'InfoOutline',
 				label: t('label.shares_info', `Shared folder's info`),
-				click: (e): void => {
+				click: (e: SyntheticEvent<HTMLElement, Event> | KeyboardEvent): void => {
 					if (e) {
 						e.stopPropagation();
 					}
@@ -338,7 +338,9 @@ type OnDropActionProps = {
 };
 
 const badgeCount = (v?: number): number | undefined => (v && v > 0 ? v : undefined);
-export const AccordionCustomComponent: FC<{ item: AccordionFolder }> = ({ item }) => {
+
+// TODO remove the "any" type after the Accordion refactor in the DS
+export const AccordionCustomComponent: FC<{ item: any }> = ({ item }) => {
 	const { folder } = item;
 	const accountName = useUserAccount().name;
 	const [t] = useTranslation();
@@ -515,7 +517,7 @@ export const AccordionCustomComponent: FC<{ item: AccordionFolder }> = ({ item }
 		() => ({
 			...item,
 			label: item.id === FOLDERS.USER_ROOT ? accountName : item.label,
-			icon: getFolderIconName(item),
+			icon: getFolderIconName(item) ?? undefined,
 			iconColor: getFolderIconColor(item),
 			// open: openIds ? openIds.includes(folder.id) : false,
 			badgeCounter: badgeCount(item.id === FOLDERS.DRAFTS ? item?.folder.n : item?.folder?.u),
@@ -557,7 +559,11 @@ export const AccordionCustomComponent: FC<{ item: AccordionFolder }> = ({ item }
 	return folder.id === FOLDERS.USER_ROOT || folder.oname === ROOT_NAME ? (
 		<FittedRow>
 			<Padding horizontal="small">
-				<Avatar label={accordionItem.label} colorLabel={accordionItem.iconColor} size="medium" />
+				<Avatar
+					label={accordionItem.label ?? ''}
+					colorLabel={accordionItem.iconColor}
+					size="medium"
+				/>
 			</Padding>
 			<Tooltip label={accordionItem.label} placement="right" maxWidth="100%">
 				<AccordionItem item={accordionItem} />
